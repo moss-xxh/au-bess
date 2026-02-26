@@ -816,12 +816,10 @@ function setManualMode(stationId, mode) {
 function switchRole() {
   if (typeof stopSimulator === 'function') stopSimulator();
   if (typeof disposeChart === 'function') disposeChart();
-  // 清除登录状态但保留语言偏好和版本号
+  // 只清角色，保留登录状态 → 直接进角色选择页
   localStorage.removeItem('role');
-  localStorage.removeItem('isLoggedIn');
-  // 重置电站数据（不同角色看到的应是干净状态）
   if (typeof resetStations === 'function') resetStations();
-  window.location.href = 'index.html';
+  window.location.href = 'index.html?step=role-select';
 }
 
 // ============ 登出 ============

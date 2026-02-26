@@ -150,44 +150,44 @@
 
           <div class="space-y-3" id="role-cards">
             <!-- Owner Card -->
-            <button onclick="selectRole('owner')" class="role-card w-full text-left p-4 rounded-xl border border-white/10 bg-white/5 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group">
+            <button onclick="selectRole('owner')" class="role-card w-full text-left p-5 rounded-2xl border-2 border-amber-500/20 bg-gradient-to-r from-amber-500/5 to-transparent hover:border-amber-500/60 hover:shadow-lg hover:shadow-amber-500/10 hover:scale-[1.02] transition-all duration-200 group">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                  <i data-lucide="briefcase" class="w-6 h-6 text-emerald-400"></i>
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                  <i data-lucide="crown" class="w-7 h-7 text-amber-400"></i>
                 </div>
                 <div class="flex-1">
-                  <h3 id="role-owner-label" class="text-white font-bold group-hover:text-emerald-400 transition-colors">Owner</h3>
-                  <p id="role-owner-desc" class="text-slate-500 text-xs mt-0.5">Monitor assets, review operator performance, track SoH</p>
+                  <h3 id="role-owner-label" class="text-white font-bold text-base group-hover:text-amber-400 transition-colors">Asset Owner</h3>
+                  <p id="role-owner-desc" class="text-slate-400 text-sm mt-1">Monitor assets, review operator performance, track SoH</p>
                 </div>
-                <i data-lucide="chevron-right" class="w-5 h-5 text-slate-600 group-hover:text-emerald-400 transition-colors"></i>
+                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 group-hover:text-amber-400 group-hover:translate-x-1 transition-all"></i>
               </div>
             </button>
 
             <!-- Operator A Card -->
-            <button onclick="selectRole('op_a')" class="role-card w-full text-left p-4 rounded-xl border border-white/10 bg-white/5 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group">
+            <button onclick="selectRole('op_a')" class="role-card w-full text-left p-5 rounded-2xl border-2 border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-transparent hover:border-emerald-500/60 hover:shadow-lg hover:shadow-emerald-500/10 hover:scale-[1.02] transition-all duration-200 group">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                  <i data-lucide="zap" class="w-6 h-6 text-blue-400"></i>
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                  <i data-lucide="zap" class="w-7 h-7 text-emerald-400"></i>
                 </div>
                 <div class="flex-1">
-                  <h3 class="text-white font-bold group-hover:text-blue-400 transition-colors">Operator A — GreenGrid</h3>
-                  <p id="role-opa-desc" class="text-slate-500 text-xs mt-0.5">Manage dispatch strategy, optimize revenue</p>
+                  <h3 class="text-white font-bold text-base group-hover:text-emerald-400 transition-colors">Operator A — GreenGrid</h3>
+                  <p id="role-opa-desc" class="text-slate-400 text-sm mt-1">Manage dispatch strategy, optimize revenue</p>
                 </div>
-                <i data-lucide="chevron-right" class="w-5 h-5 text-slate-600 group-hover:text-blue-400 transition-colors"></i>
+                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all"></i>
               </div>
             </button>
 
             <!-- Operator B Card -->
-            <button onclick="selectRole('op_b')" class="role-card w-full text-left p-4 rounded-xl border border-white/10 bg-white/5 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all group">
+            <button onclick="selectRole('op_b')" class="role-card w-full text-left p-5 rounded-2xl border-2 border-blue-500/20 bg-gradient-to-r from-blue-500/5 to-transparent hover:border-blue-500/60 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-[1.02] transition-all duration-200 group">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                  <i data-lucide="zap" class="w-6 h-6 text-amber-400"></i>
+                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
+                  <i data-lucide="zap" class="w-7 h-7 text-blue-400"></i>
                 </div>
                 <div class="flex-1">
-                  <h3 class="text-white font-bold group-hover:text-amber-400 transition-colors">Operator B — VoltEdge</h3>
-                  <p id="role-opb-desc" class="text-slate-500 text-xs mt-0.5">Manage dispatch strategy, optimize revenue</p>
+                  <h3 class="text-white font-bold text-base group-hover:text-blue-400 transition-colors">Operator B — VoltEdge</h3>
+                  <p id="role-opb-desc" class="text-slate-400 text-sm mt-1">Manage dispatch strategy, optimize revenue</p>
                 </div>
-                <i data-lucide="chevron-right" class="w-5 h-5 text-slate-600 group-hover:text-amber-400 transition-colors"></i>
+                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all"></i>
               </div>
             </button>
           </div>
@@ -478,6 +478,17 @@
     lucide.createIcons();
     renderLoginLang();
     initMFAInputs();
+
+    // 如果从 Dashboard 切换角色过来，直接显示角色选择页
+    (function checkRoleSelectParam() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('step') === 'role-select' && localStorage.getItem('isLoggedIn') === 'true') {
+        document.getElementById('step-credentials').classList.add('hidden');
+        document.getElementById('step-mfa').classList.add('hidden');
+        document.getElementById('step-role').classList.remove('hidden');
+        renderRoleLang();
+      }
+    })();
   </script>
 </body>
 </html>
