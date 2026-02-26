@@ -12,7 +12,10 @@ let currentPrice = 100;   // $/MWh
 let previousPrice = 100;  // 上一轮电价（用于平滑）
 let priceHistory = [];     // [{time, price, powers: {st_01: MW, ...}}]
 const MAX_HISTORY = 12;    // 保留 1 小时（12 × 5 分钟）
-const SMOOTHING_FACTOR = 0.3; // 平滑系数：0=完全沿用旧价, 1=完全用新价
+const SMOOTHING_FACTOR = 0.3;
+let dispatchLogs = [];         // [{time, stationName, stationId, operatorId, action, price, revenue}]
+const MAX_LOGS = 100;
+let previousStationStatus = {}; // 记录上一轮状态用于检测变化
 
 // ============ 电价模型 ============
 
@@ -140,7 +143,11 @@ function simTick() {
   // 尖峰时强制触发放电判断（绕过普通阈值）
   const isSpike = currentPrice > 3000;
 
+  const timeStr = new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
   stations.forEach(station => {
+    const prevStatus = previousStationStatus[station.id] || 'IDLE';
+
     if (station.operator_id !== 'unassigned') {
       if (isSpike && station.soc > 5) {
         // 尖峰强制放电
@@ -155,13 +162,23 @@ function simTick() {
         station.cumulative_mwh = (station.cumulative_mwh || 0) + energyMWh;
         station.soh = Math.max(0, station.soh - energyMWh * 0.001);
         powers[station.id] = cap.mw;
+
+        // 尖峰日志（始终记录）
+        logDispatch(timeStr, station, 'SPIKE_DISCHARGE', currentPrice, revenue);
       } else {
         const result = runAutoBidder(station, currentPrice);
         powers[station.id] = result.power;
+
+        // 状态变化时记录日志
+        if (station.status !== prevStatus) {
+          logDispatch(timeStr, station, station.status, currentPrice, result.revenue);
+        }
       }
     } else {
       powers[station.id] = 0;
     }
+
+    previousStationStatus[station.id] = station.status;
   });
 
   // 记录历史
@@ -223,4 +240,34 @@ function getPriceHistory() {
  */
 function isPriceSpike() {
   return currentPrice > 5000;
+}
+
+// ============ 调度日志 ============
+
+/**
+ * 记录一条调度日志
+ */
+function logDispatch(time, station, action, price, revenue) {
+  dispatchLogs.push({
+    time,
+    stationName: station.name,
+    stationId: station.id,
+    operatorId: station.operator_id,
+    action,
+    price: Math.round(price * 100) / 100,
+    revenue: Math.round((revenue || 0) * 100) / 100
+  });
+  if (dispatchLogs.length > MAX_LOGS) dispatchLogs.shift();
+}
+
+/**
+ * 获取调度日志（可选按 operatorId 过滤）
+ * @param {string} [operatorId] - 过滤条件
+ * @returns {Array}
+ */
+function getDispatchLogs(operatorId) {
+  if (operatorId) {
+    return dispatchLogs.filter(l => l.operatorId === operatorId);
+  }
+  return [...dispatchLogs];
 }
