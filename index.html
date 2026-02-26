@@ -536,7 +536,8 @@
     // 如果从 Dashboard 切换角色过来，直接显示全屏角色选择页
     (function checkRoleSelectParam() {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('step') === 'role-select' && localStorage.getItem('isLoggedIn') === 'true') {
+      const jump = params.get('jump') || params.get('step');
+      if (jump === 'role-select' && localStorage.getItem('isLoggedIn') === 'true') {
         showRoleSelect();
         renderRoleLang();
       }
