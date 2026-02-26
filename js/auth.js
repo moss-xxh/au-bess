@@ -90,9 +90,16 @@ const TRANSLATIONS = {
     select_role: 'Select Your Identity',
     select_role_hint: 'Choose how you want to access the AU BESS Platform',
     role_owner_title: 'Pacific Energy Group',
+    role_owner_subtitle: 'Asset Owner',
+    role_owner_label: 'Asset Owner',
     role_owner_desc: 'Control global asset returns, audit operator performance, manage station allocation. Track battery health and long-term ROI.',
+    role_owner_enter: 'Enter Owner Portal',
     role_operator_title: 'Operator',
+    role_operator_subtitle: 'Operator',
+    role_operator_label: 'Dispatch Expert',
     role_operator_desc: 'Monitor station output in real-time, execute automated arbitrage strategies, optimize battery lifespan. Manage dispatch thresholds and emergency response.',
+    role_operator_enter: 'Enter Operator Portal',
+    role_select_title: 'Select Your Identity',
     role_select_as: 'Enter Portal',
 
     // Reports
@@ -255,9 +262,16 @@ const TRANSLATIONS = {
     select_role: '选择访问身份',
     select_role_hint: '选择您要以何种身份进入 AU BESS 平台',
     role_owner_title: 'Pacific Energy Group',
+    role_owner_subtitle: '资产业主',
+    role_owner_label: '资产业主',
     role_owner_desc: '掌控全局资产收益，审计运维表现，管理电站分配。追踪电池健康度与长期投资回报。',
+    role_owner_enter: '进入业主门户',
     role_operator_title: '运维方',
+    role_operator_subtitle: '运维方',
+    role_operator_label: '运维专家',
     role_operator_desc: '实时监控电站出力，执行自动化套利策略，优化电池寿命。管理调度阈值与紧急响应。',
+    role_operator_enter: '进入运维门户',
+    role_select_title: '选择访问身份',
     role_select_as: '进入门户',
 
     // 报表

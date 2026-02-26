@@ -198,11 +198,11 @@
               <div class="w-20 h-20 rounded-3xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <i data-lucide="crown" class="w-10 h-10 text-amber-400"></i>
               </div>
-              <p class="text-amber-400/80 text-sm font-semibold uppercase tracking-wider mb-2">Asset Owner</p>
-              <h3 id="role-owner-label" class="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors">资产业主</h3>
+              <p id="role-owner-subtitle" class="text-amber-400/80 text-sm font-semibold uppercase tracking-wider mb-2">Asset Owner</p>
+              <h3 id="role-owner-title" class="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors">资产业主</h3>
               <p id="role-owner-desc" class="text-slate-400 text-base leading-relaxed mb-8">掌控全局资产收益，审计运维表现，管理电站分配。追踪电池健康度与长期投资回报。</p>
               <div class="flex items-center gap-3 text-amber-400/70 group-hover:text-amber-400 transition-colors">
-                <span class="text-sm font-semibold">Enter Owner Portal</span>
+                <span id="role-owner-enter" class="text-sm font-semibold">Enter Owner Portal</span>
                 <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-2 transition-transform"></i>
               </div>
             </div>
@@ -216,11 +216,11 @@
               <div class="w-20 h-20 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <i data-lucide="zap" class="w-10 h-10 text-emerald-400"></i>
               </div>
-              <p class="text-emerald-400/80 text-sm font-semibold uppercase tracking-wider mb-2">Operator</p>
-              <h3 class="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-emerald-400 transition-colors">运维专家</h3>
-              <p id="role-opa-desc" class="text-slate-400 text-base leading-relaxed mb-8">实时监控电站出力，执行自动化套利策略，优化电池寿命。管理调度阈值与紧急响应。</p>
+              <p id="role-op-subtitle" class="text-emerald-400/80 text-sm font-semibold uppercase tracking-wider mb-2">Operator</p>
+              <h3 id="role-op-title" class="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-emerald-400 transition-colors">运维专家</h3>
+              <p id="role-op-desc" class="text-slate-400 text-base leading-relaxed mb-8">实时监控电站出力，执行自动化套利策略，优化电池寿命。管理调度阈值与紧急响应。</p>
               <div class="flex items-center gap-3 text-emerald-400/70 group-hover:text-emerald-400 transition-colors">
-                <span class="text-sm font-semibold">Enter Operator Portal</span>
+                <span id="role-op-enter" class="text-sm font-semibold">Enter Operator Portal</span>
                 <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-2 transition-transform"></i>
               </div>
             </div>
@@ -421,11 +421,20 @@
     function renderRoleLang() {
       const t = getTrans;
       const el = (id) => document.getElementById(id);
-      if (el('role-title')) el('role-title').textContent = t('select_role');
+      // Header
+      if (el('role-title')) el('role-title').textContent = t('role_select_title');
       if (el('role-hint')) el('role-hint').textContent = t('select_role_hint');
-      if (el('role-owner-desc')) el('role-owner-desc').textContent = t('role_owner_desc');
-      if (el('role-opa-desc')) el('role-opa-desc').textContent = t('role_operator_desc');
       if (el('role-lang-btn')) el('role-lang-btn').textContent = t('lang_switch');
+      // Owner card
+      if (el('role-owner-subtitle')) el('role-owner-subtitle').textContent = t('role_owner_subtitle');
+      if (el('role-owner-title')) el('role-owner-title').textContent = t('role_owner_label');
+      if (el('role-owner-desc')) el('role-owner-desc').textContent = t('role_owner_desc');
+      if (el('role-owner-enter')) el('role-owner-enter').textContent = t('role_owner_enter');
+      // Operator card
+      if (el('role-op-subtitle')) el('role-op-subtitle').textContent = t('role_operator_subtitle');
+      if (el('role-op-title')) el('role-op-title').textContent = t('role_operator_label');
+      if (el('role-op-desc')) el('role-op-desc').textContent = t('role_operator_desc');
+      if (el('role-op-enter')) el('role-op-enter').textContent = t('role_operator_enter');
     }
 
     // ====== Step transitions ======
