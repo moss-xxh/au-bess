@@ -144,55 +144,10 @@
           </button>
         </div>
 
-        <!-- ========== STEP 3: Role Selection ========== -->
+        <!-- ========== STEP 3: Role Selection (placeholder inside auth box) ========== -->
         <div id="step-role" class="auth-step absolute inset-0 p-6 md:p-8 hidden" style="background: inherit;">
-          <div class="mb-6">
-            <h2 id="role-title" class="text-lg font-bold text-white">Select Your Role</h2>
-            <p id="role-hint" class="text-slate-400 text-sm mt-1">Choose how you want to access the platform</p>
-          </div>
-
-          <div class="space-y-3" id="role-cards">
-            <!-- Owner Card -->
-            <button onclick="selectRole('owner')" class="role-card w-full text-left p-5 rounded-2xl border-2 border-amber-500/20 bg-gradient-to-r from-amber-500/5 to-transparent hover:border-amber-500/60 hover:shadow-lg hover:shadow-amber-500/10 hover:scale-[1.02] transition-all duration-200 group">
-              <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
-                  <i data-lucide="crown" class="w-7 h-7 text-amber-400"></i>
-                </div>
-                <div class="flex-1">
-                  <h3 id="role-owner-label" class="text-white font-bold text-base group-hover:text-amber-400 transition-colors">Asset Owner</h3>
-                  <p id="role-owner-desc" class="text-slate-400 text-sm mt-1">Monitor assets, review operator performance, track SoH</p>
-                </div>
-                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 group-hover:text-amber-400 group-hover:translate-x-1 transition-all"></i>
-              </div>
-            </button>
-
-            <!-- Operator A Card -->
-            <button onclick="selectRole('op_a')" class="role-card w-full text-left p-5 rounded-2xl border-2 border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-transparent hover:border-emerald-500/60 hover:shadow-lg hover:shadow-emerald-500/10 hover:scale-[1.02] transition-all duration-200 group">
-              <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                  <i data-lucide="zap" class="w-7 h-7 text-emerald-400"></i>
-                </div>
-                <div class="flex-1">
-                  <h3 class="text-white font-bold text-base group-hover:text-emerald-400 transition-colors">Operator A — GreenGrid</h3>
-                  <p id="role-opa-desc" class="text-slate-400 text-sm mt-1">Manage dispatch strategy, optimize revenue</p>
-                </div>
-                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all"></i>
-              </div>
-            </button>
-
-            <!-- Operator B Card -->
-            <button onclick="selectRole('op_b')" class="role-card w-full text-left p-5 rounded-2xl border-2 border-blue-500/20 bg-gradient-to-r from-blue-500/5 to-transparent hover:border-blue-500/60 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-[1.02] transition-all duration-200 group">
-              <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
-                  <i data-lucide="zap" class="w-7 h-7 text-blue-400"></i>
-                </div>
-                <div class="flex-1">
-                  <h3 class="text-white font-bold text-base group-hover:text-blue-400 transition-colors">Operator B — VoltEdge</h3>
-                  <p id="role-opb-desc" class="text-slate-400 text-sm mt-1">Manage dispatch strategy, optimize revenue</p>
-                </div>
-                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all"></i>
-              </div>
-            </button>
+          <div class="flex items-center justify-center h-full">
+            <p class="text-slate-500 text-sm">Loading roles...</p>
           </div>
         </div>
 
@@ -211,6 +166,76 @@
 
       <!-- Footer -->
       <p id="footer-label" class="text-slate-600 text-xs text-center mt-6">Phase 1 Demo · AU BESS Management Platform</p>
+    </div>
+  </div>
+
+  <!-- ========== FULL-SCREEN ROLE SELECTION ========== -->
+  <div id="role-select-overlay" class="fixed inset-0 z-50 bg-slate-950 bg-grid hidden">
+    <!-- Language button -->
+    <button id="role-lang-btn" onclick="toggleLoginLang(); renderRoleLang();" class="fixed top-5 right-5 z-10 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+      English
+    </button>
+
+    <div class="flex items-center justify-center min-h-screen px-4 py-8">
+      <div class="w-full max-w-5xl">
+        <!-- Header -->
+        <div class="text-center mb-10">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500 mb-4">
+            <i data-lucide="users" class="w-7 h-7 text-white"></i>
+          </div>
+          <h1 id="role-title" class="text-3xl font-bold text-white">Select Your Identity</h1>
+          <p id="role-hint" class="text-slate-400 text-base mt-2">Choose how you want to access the AU BESS Platform</p>
+        </div>
+
+        <!-- 3 Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Owner Card -->
+          <button onclick="selectRole('owner')" class="group text-left p-6 rounded-2xl border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent hover:border-amber-400 hover:shadow-2xl hover:shadow-amber-500/20 hover:scale-[1.03] transition-all duration-300 cursor-pointer">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i data-lucide="crown" class="w-8 h-8 text-amber-400"></i>
+            </div>
+            <h3 id="role-owner-label" class="text-xl font-bold text-white mb-1 group-hover:text-amber-400 transition-colors">Pacific Energy Group</h3>
+            <p class="text-amber-400/80 text-sm font-medium mb-3">Asset Owner</p>
+            <p id="role-owner-desc" class="text-slate-400 text-sm leading-relaxed">资产持有者。负责全局收益审计、运维方考核及资产划转。</p>
+            <div class="mt-5 flex items-center gap-2 text-amber-400/60 group-hover:text-amber-400 transition-colors">
+              <span class="text-xs font-medium">Enter Portal</span>
+              <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </button>
+
+          <!-- Operator A Card -->
+          <button onclick="selectRole('op_a')" class="group text-left p-6 rounded-2xl border-2 border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-500/20 hover:scale-[1.03] transition-all duration-300 cursor-pointer">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i data-lucide="zap" class="w-8 h-8 text-emerald-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-1 group-hover:text-emerald-400 transition-colors">GreenGrid Energy</h3>
+            <p class="text-emerald-400/80 text-sm font-medium mb-3">Operator A</p>
+            <p id="role-opa-desc" class="text-slate-400 text-sm leading-relaxed">区域运营商 A。负责 Sydney & Brisbane 电站调度，追求极致充放电效率。</p>
+            <div class="mt-5 flex items-center gap-2 text-emerald-400/60 group-hover:text-emerald-400 transition-colors">
+              <span class="text-xs font-medium">Enter Portal</span>
+              <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </button>
+
+          <!-- Operator B Card -->
+          <button onclick="selectRole('op_b')" class="group text-left p-6 rounded-2xl border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.03] transition-all duration-300 cursor-pointer">
+            <div class="w-16 h-16 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <i data-lucide="activity" class="w-8 h-8 text-blue-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">VoltEdge Solutions</h3>
+            <p class="text-blue-400/80 text-sm font-medium mb-3">Operator B</p>
+            <p id="role-opb-desc" class="text-slate-400 text-sm leading-relaxed">区域运营商 B。负责 Melbourne 电站管理，专注于长寿命周期电池保护。</p>
+            <div class="mt-5 flex items-center gap-2 text-blue-400/60 group-hover:text-blue-400 transition-colors">
+              <span class="text-xs font-medium">Enter Portal</span>
+              <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </button>
+
+        </div>
+
+        <p class="text-slate-600 text-xs text-center mt-8">AU BESS Platform · Demo Environment</p>
+      </div>
     </div>
   </div>
 
@@ -379,19 +404,24 @@
       localStorage.setItem('isLoggedIn', 'true');
 
       const isOwner = roleId === 'owner';
-      const toastMsg = isOwner ? getTrans('login_success_owner') : getTrans('login_success_operator');
+      const names = { owner: 'Pacific Energy Group', op_a: 'GreenGrid Energy', op_b: 'VoltEdge Solutions' };
+      const toastMsg = `Welcome, ${names[roleId] || roleId}`;
       const toast = document.createElement('div');
-      toast.className = 'fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 z-50';
-      toast.innerHTML = '<span class="text-sm font-medium">' + toastMsg + '</span>';
+      toast.className = 'fixed top-5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-2 z-[60] text-sm font-medium';
+      toast.textContent = toastMsg;
       document.body.appendChild(toast);
-
-      document.getElementById('step-role').classList.add('hidden');
-      const overlay = document.getElementById('loading-overlay');
-      overlay.classList.remove('hidden');
 
       setTimeout(() => {
         window.location.href = 'dashboard.html';
-      }, 1500);
+      }, 1000);
+    }
+
+    function showRoleSelect() {
+      // Hide login container, show full-screen role overlay
+      document.querySelector('.flex.items-center.justify-center.min-h-screen').style.display = 'none';
+      document.getElementById('role-select-overlay').classList.remove('hidden');
+      document.getElementById('role-lang-btn').textContent = getTrans('lang_switch');
+      lucide.createIcons();
     }
 
     function renderRoleLang() {
@@ -399,18 +429,22 @@
       const el = (id) => document.getElementById(id);
       if (el('role-title')) el('role-title').textContent = t('select_role');
       if (el('role-hint')) el('role-hint').textContent = t('select_role_hint');
-      if (el('role-owner-label')) el('role-owner-label').textContent = t('role_owner_title');
       if (el('role-owner-desc')) el('role-owner-desc').textContent = t('role_owner_desc');
       if (el('role-opa-desc')) el('role-opa-desc').textContent = t('role_operator_desc');
       if (el('role-opb-desc')) el('role-opb-desc').textContent = t('role_operator_desc');
-      lucide.createIcons();
+      if (el('role-lang-btn')) el('role-lang-btn').textContent = t('lang_switch');
     }
 
     // ====== Step transitions ======
     function showStep(step) {
+      if (step === 'role') {
+        showRoleSelect();
+        return;
+      }
+
       const allSteps = ['step-credentials', 'step-mfa', 'step-role'];
       const current = allSteps.find(id => !document.getElementById(id).classList.contains('hidden'));
-      const target = step === 'mfa' ? 'step-mfa' : step === 'role' ? 'step-role' : 'step-credentials';
+      const target = step === 'mfa' ? 'step-mfa' : 'step-credentials';
 
       if (current === target) return;
 
@@ -482,13 +516,11 @@
     renderLoginLang();
     initMFAInputs();
 
-    // 如果从 Dashboard 切换角色过来，直接显示角色选择页
+    // 如果从 Dashboard 切换角色过来，直接显示全屏角色选择页
     (function checkRoleSelectParam() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('step') === 'role-select' && localStorage.getItem('isLoggedIn') === 'true') {
-        document.getElementById('step-credentials').classList.add('hidden');
-        document.getElementById('step-mfa').classList.add('hidden');
-        document.getElementById('step-role').classList.remove('hidden');
+        showRoleSelect();
         renderRoleLang();
       }
     })();
