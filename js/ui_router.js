@@ -303,11 +303,7 @@ function renderSidebar(role, theme) {
         </a>`;
       }).join('')}
     </nav>
-    <div class="p-4 border-t border-white/10 space-y-1">
-      <a href="#" onclick="switchRole()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-amber-400 hover:bg-amber-500/10 transition-colors">
-        <i data-lucide="repeat" class="w-4 h-4"></i>
-        ${getTrans('switch_role')}
-      </a>
+    <div class="p-4 border-t border-white/10">
       <a href="#" onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors">
         <i data-lucide="log-out" class="w-4 h-4"></i>
         ${getTrans('sign_out')}
@@ -364,8 +360,12 @@ function renderHeader(role, theme) {
         <p class="text-xs md:text-sm text-slate-400 mt-0.5">${isOwner ? getTrans('owner_subtitle') : getTrans('operator_subtitle')}</p>
       </div>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 md:gap-3">
       <span class="text-xs text-slate-500 hidden sm:inline">${new Date().toLocaleDateString(getLang() === 'zh' ? 'zh-CN' : 'en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+      <button onclick="switchRole()" class="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs font-medium text-amber-400 hover:bg-amber-500/20 hover:text-amber-300 transition-colors flex items-center gap-1.5">
+        <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
+        ${getTrans('switch_role')}
+      </button>
       <button onclick="toggleLangAndRefresh()" class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
         ${getTrans('lang_switch')}
       </button>

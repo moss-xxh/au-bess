@@ -85,6 +85,8 @@ const TRANSLATIONS = {
     mfa_demo_hint: 'Demo: enter any 6 digits (e.g., 123456)',
     strategy_warning_high_reserve: 'Warning: Reserve SoC is higher than current SoC',
     switch_role: 'Switch Role',
+    login_success_owner: 'Login successful. Entering as Owner...',
+    login_success_operator: 'Login successful. Entering as Operator...',
 
     // Reports
     export_csv: 'Export CSV',
@@ -241,6 +243,8 @@ const TRANSLATIONS = {
     mfa_demo_hint: '演示：请随意输入 6 位数字（如 123456）',
     strategy_warning_high_reserve: '提醒：储备 SoC 设置高于当前实际值',
     switch_role: '切换角色',
+    login_success_owner: '登录成功，正在以管理员身份进入系统...',
+    login_success_operator: '登录成功，正在以操作员身份进入系统...',
 
     // 报表
     export_csv: '导出 CSV',
