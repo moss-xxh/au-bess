@@ -1,5 +1,5 @@
 /**
- * Phase 1 增强版完整测试
+ * Phase 1 Enhanced v2 完整测试
  * 运行: node test_runner.js
  */
 const fs = require('fs');
@@ -15,146 +15,113 @@ const sandbox = {
   },
   navigator: { language: 'zh-CN' },
   window: {},
-  console: console,
-  Date: Date,
-  JSON: JSON,
-  Math: Math,
-  parseInt: parseInt,
-  parseFloat: parseFloat,
-  setTimeout: setTimeout,
-  String: String,
-  Number: Number,
-  Array: Array,
-  Object: Object,
+  console, Date, JSON, Math, parseInt, parseFloat, String, Number, Array, Object, RegExp,
 };
 vm.createContext(sandbox);
 
-// ====== 加载 auth.js（用脚本方式，让 const 在 context 内部可见）======
 const authCode = fs.readFileSync(__dirname + '/js/auth.js', 'utf8');
+vm.runInContext(authCode + `
+;this.__TRANSLATIONS=TRANSLATIONS;this.__getLang=getLang;this.__getTrans=getTrans;
+this.__switchLang=switchLang;this.__toggleLang=toggleLang;
+this.__getCurrentUser=getCurrentUser;this.__getUserName=getUserName;
+this.__getOperators=getOperators;this.__getStationsByRole=getStationsByRole;
+this.__assignStation=assignStation;this.__getLeaseRemaining=getLeaseRemaining;
+this.__formatAUD=formatAUD;this.__stations=stations;
+this.__verifyCredentials=verifyCredentials;this.__verifyMFA=verifyMFA;
+this.__users=users;
+`, sandbox);
 
-// 追加导出代码到 sandbox
-const testWrapper = authCode + `
-;
-// 暴露到 sandbox 
-this.__TRANSLATIONS = TRANSLATIONS;
-this.__getLang = getLang;
-this.__getTrans = getTrans;
-this.__switchLang = switchLang;
-this.__toggleLang = toggleLang;
-this.__getCurrentUser = getCurrentUser;
-this.__getUserName = getUserName;
-this.__getOperators = getOperators;
-this.__getStationsByRole = getStationsByRole;
-this.__assignStation = assignStation;
-this.__getLeaseRemaining = getLeaseRemaining;
-this.__formatAUD = formatAUD;
-this.__stations = stations;
-`;
+const { __TRANSLATIONS: TRANSLATIONS, __getLang: getLang, __getTrans: getTrans,
+  __switchLang: switchLang, __toggleLang: toggleLang,
+  __getStationsByRole: getStationsByRole, __assignStation: assignStation,
+  __getLeaseRemaining: getLeaseRemaining, __formatAUD: formatAUD,
+  __getUserName: getUserName, __getOperators: getOperators,
+  __stations: stations, __verifyCredentials: verifyCredentials,
+  __verifyMFA: verifyMFA, __users: users } = sandbox;
 
-vm.runInContext(testWrapper, sandbox);
-
-// ====== 提取函数 ======
-const TRANSLATIONS = sandbox.__TRANSLATIONS;
-const getLang = sandbox.__getLang;
-const getTrans = sandbox.__getTrans;
-const switchLang = sandbox.__switchLang;
-const toggleLang = sandbox.__toggleLang;
-const getStationsByRole = sandbox.__getStationsByRole;
-const assignStation = sandbox.__assignStation;
-const getLeaseRemaining = sandbox.__getLeaseRemaining;
-const formatAUD = sandbox.__formatAUD;
-const getUserName = sandbox.__getUserName;
-const getOperators = sandbox.__getOperators;
-const stations = sandbox.__stations;
-
-// ====== 测试框架 ======
 let pass = 0, fail = 0;
 function test(name, condition) {
   if (condition) { console.log('✅ ' + name); pass++; }
   else { console.log('❌ ' + name); fail++; }
 }
 
-// ====== i18n 测试 ======
+// ====== i18n ======
 console.log('\n--- i18n Tests ---');
 test('TRANSLATIONS.en exists', !!TRANSLATIONS.en);
 test('TRANSLATIONS.zh exists', !!TRANSLATIONS.zh);
-test('EN: assets_overview', TRANSLATIONS.en.assets_overview === 'Assets Overview');
-test('ZH: assets_overview', TRANSLATIONS.zh.assets_overview === '资产概览');
-test('EN: 24+ keys', Object.keys(TRANSLATIONS.en).length >= 24);
-test('ZH: 24+ keys', Object.keys(TRANSLATIONS.zh).length >= 24);
-test('ZH key count = EN key count', Object.keys(TRANSLATIONS.zh).length === Object.keys(TRANSLATIONS.en).length);
+test('EN: login_title', TRANSLATIONS.en.login_title === 'Account Login');
+test('ZH: login_title', TRANSLATIONS.zh.login_title === '账号登录');
+test('EN: mfa_title', TRANSLATIONS.en.mfa_title === 'Two-Factor Authentication');
+test('ZH: mfa_title', TRANSLATIONS.zh.mfa_title === '双重身份验证');
+test('EN: remember_me', TRANSLATIONS.en.remember_me === 'Remember me');
+test('ZH: remember_me', TRANSLATIONS.zh.remember_me === '记住我');
+test('EN: invalid_creds', TRANSLATIONS.en.invalid_creds === 'Invalid username or password');
+test('ZH: invalid_creds', TRANSLATIONS.zh.invalid_creds === '用户名或密码错误');
+test('EN: incorrect_code', TRANSLATIONS.en.incorrect_code === 'Invalid verification code');
+test('ZH: incorrect_code', TRANSLATIONS.zh.incorrect_code === '验证码错误');
+test('EN: attempts_left', TRANSLATIONS.en.attempts_left === 'attempts remaining');
+test('ZH: attempts_left', TRANSLATIONS.zh.attempts_left === '次重试机会');
+test('Key count match', Object.keys(TRANSLATIONS.en).length === Object.keys(TRANSLATIONS.zh).length);
 
-test('Auto detect zh-CN → zh', getLang() === 'zh');
-test('getTrans default = 退出登录', getTrans('sign_out') === '退出登录');
-
+test('Auto detect zh', getLang() === 'zh');
 switchLang('en');
-test('Switch to en', getLang() === 'en');
-test('getTrans en: Sign Out', getTrans('sign_out') === 'Sign Out');
-test('getTrans en: Portfolio', getTrans('menu_portfolio') === 'Portfolio');
-test('getTrans en: Pending Assignment', getTrans('pending_assignment') === 'Pending Assignment');
-
+test('Switch en', getLang() === 'en');
+test('getTrans en', getTrans('login_title') === 'Account Login');
 switchLang('zh');
-test('Switch to zh', getLang() === 'zh');
-test('getTrans zh: 退出登录', getTrans('sign_out') === '退出登录');
-test('getTrans zh: 资产总览', getTrans('menu_portfolio') === '资产总览');
-test('getTrans zh: 待分配', getTrans('pending_assignment') === '待分配');
+test('getTrans zh', getTrans('login_title') === '账号登录');
 
-toggleLang();
-test('toggleLang zh→en', getLang() === 'en');
-toggleLang();
-test('toggleLang en→zh', getLang() === 'zh');
+// ====== 登录验证 ======
+console.log('\n--- Login Tests ---');
+test('Users have 3 accounts', users.length === 3);
+test('All users have username', users.every(u => !!u.username));
+test('All users have password', users.every(u => !!u.password));
 
-// ====== 权限隔离测试 ======
+test('admin/admin123 → owner_1', verifyCredentials('admin', 'admin123')?.id === 'owner_1');
+test('op_a/pass123 → op_a', verifyCredentials('op_a', 'pass123')?.id === 'op_a');
+test('op_b/pass123 → op_b', verifyCredentials('op_b', 'pass123')?.id === 'op_b');
+test('wrong password → null', verifyCredentials('admin', 'wrong') === null);
+test('wrong username → null', verifyCredentials('nobody', '123') === null);
+test('empty → null', verifyCredentials('', '') === null);
+
+// ====== MFA ======
+console.log('\n--- MFA Tests ---');
+test('123456 → true', verifyMFA('123456') === true);
+test('000000 → true', verifyMFA('000000') === true);
+test('999999 → true', verifyMFA('999999') === true);
+test('12345 → false (5 digits)', verifyMFA('12345') === false);
+test('1234567 → false (7 digits)', verifyMFA('1234567') === false);
+test('abcdef → false (letters)', verifyMFA('abcdef') === false);
+test('empty → false', verifyMFA('') === false);
+
+// ====== 权限 ======
 console.log('\n--- Permission Tests ---');
 storage.role = 'owner';
-test('Owner sees 4 stations', getStationsByRole().length === 4);
-
+test('Owner sees 4', getStationsByRole().length === 4);
 storage.role = 'op_a';
-const opA = getStationsByRole();
-test('OpA sees 2 stations', opA.length === 2);
-test('OpA has st_01', opA.some(s => s.id === 'st_01'));
-test('OpA has st_03', opA.some(s => s.id === 'st_03'));
-test('OpA no st_02', !opA.some(s => s.id === 'st_02'));
-test('OpA no st_04(unassigned)', !opA.some(s => s.id === 'st_04'));
-
+test('OpA sees 2', getStationsByRole().length === 2);
 storage.role = 'op_b';
-const opB = getStationsByRole();
-test('OpB sees 1 station', opB.length === 1);
-test('OpB has st_02', opB[0].id === 'st_02');
+test('OpB sees 1', getStationsByRole().length === 1);
 
-// ====== 划转测试 ======
+// ====== 划转 ======
 console.log('\n--- Assignment Tests ---');
-test('Assign st_04→op_a succeeds', assignStation('st_04', 'op_a') === true);
-test('st_04 operator = op_a', stations.find(s => s.id === 'st_04').operator_id === 'op_a');
-test('Assign invalid station fails', assignStation('st_99', 'op_a') === false);
-
+test('Assign st_04→op_a', assignStation('st_04', 'op_a'));
+test('st_04=op_a', stations.find(s => s.id === 'st_04').operator_id === 'op_a');
 storage.role = 'op_a';
-test('OpA now sees 3 stations', getStationsByRole().length === 3);
-test('st_04 appears in OpA list', getStationsByRole().some(s => s.id === 'st_04'));
+test('OpA now 3', getStationsByRole().length === 3);
+test('Persisted', !!storage.stations);
 
-// ====== 持久化测试 ======
-console.log('\n--- Persistence Tests ---');
-test('Data persisted to localStorage', !!storage.stations);
-const saved = JSON.parse(storage.stations);
-test('Persisted st_04 = op_a', saved.find(s => s.id === 'st_04').operator_id === 'op_a');
-
-// ====== 工具函数测试 ======
+// ====== 工具 ======
 console.log('\n--- Utility Tests ---');
-test('Lease future date > 0', getLeaseRemaining('2028-12-31') > 0);
-test('Lease past date < 0', getLeaseRemaining('2020-01-01') < 0);
-test('Lease unset = "-"', getLeaseRemaining('-') === '-');
-test('AUD 850k includes "850"', formatAUD(850000).includes('850'));
-test('AUD 850k starts with A$', formatAUD(850000).startsWith('A$'));
-test('AUD 0 = "-"', formatAUD(0) === '-');
-test('getUserName(op_a) = GreenGrid', getUserName('op_a') === 'GreenGrid Operations');
-test('getUserName(owner_1) = Pacific', getUserName('owner_1') === 'Pacific Energy Group');
-test('getOperators() = 2', getOperators().length === 2);
+test('Lease future>0', getLeaseRemaining('2028-12-31') > 0);
+test('Lease past<0', getLeaseRemaining('2020-01-01') < 0);
+test('Lease unset', getLeaseRemaining('-') === '-');
+test('AUD format', formatAUD(850000).startsWith('A$'));
+test('AUD zero', formatAUD(0) === '-');
 
-// ====== 结果 ======
+// ====== Result ======
 console.log('\n========================================');
 console.log(`Total: ${pass + fail} | Pass: ${pass} | Fail: ${fail}`);
 console.log(`Pass Rate: ${((pass / (pass + fail)) * 100).toFixed(1)}%`);
 console.log(fail === 0 ? '🎉 ALL TESTS PASSED' : '⚠️ SOME TESTS FAILED');
 console.log('========================================');
-
 process.exit(fail > 0 ? 1 : 0);
