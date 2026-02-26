@@ -46,6 +46,7 @@ function renderHealthView(container) {
       </div>
       <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-6">
         <div id="soh-chart" style="width:100%;height:350px;"></div>
+        <p class="text-xs text-slate-600 mt-2 text-center italic">${getTrans('simulated_data_hint')}</p>
       </div>
     </div>
   `;

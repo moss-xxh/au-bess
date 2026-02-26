@@ -137,7 +137,7 @@ function renderKPI(role, theme) {
     container.innerHTML = `
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         ${kpiCard(getTrans('kpi_total_cap'), `${totalCapMW}MW / ${totalCapMWh}MWh`, 'battery-charging', theme.accent)}
-        ${kpiCard(getTrans('kpi_month_rev'), `A$${Math.abs(monthRev).toFixed(0)}`, 'trending-up', monthRev >= 0 ? 'text-emerald-400' : 'text-red-400', 'kpi-month-rev')}
+        ${kpiCard(getTrans('kpi_month_rev'), `~A$${Math.abs(monthRev).toFixed(0)}`, 'trending-up', monthRev >= 0 ? 'text-emerald-400' : 'text-red-400', 'kpi-month-rev')}
         ${kpiCard(getTrans('kpi_avg_soh'), `${avgSoh.toFixed(4)}%`, 'heart-pulse', avgSoh > 99 ? 'text-emerald-400' : 'text-amber-400', 'kpi-avg-soh')}
         ${kpiCard(getTrans('kpi_unassigned'), `${unassignedCount} station${unassignedCount !== 1 ? 's' : ''}`, 'alert-circle', unassignedCount > 0 ? 'text-amber-400' : 'text-emerald-400')}
       </div>
@@ -183,7 +183,7 @@ function updateKPI(role, theme, price) {
     const todayRev = stations.reduce((s, st) => s + (st.revenue_today || 0), 0);
     const el1 = document.getElementById('kpi-month-rev');
     const el2 = document.getElementById('kpi-avg-soh');
-    if (el1) el1.textContent = `A$${Math.abs(todayRev * 30).toFixed(0)}`;
+    if (el1) el1.textContent = `~A$${Math.abs(todayRev * 30).toFixed(0)}`;
     if (el2) el2.textContent = `${avgSoh.toFixed(4)}%`;
   } else {
     const todayRev = myStations.reduce((s, st) => s + (st.revenue_today || 0), 0);
@@ -772,10 +772,20 @@ function saveStrategy(stationId) {
   const station = stations.find(s => s.id === stationId);
   if (!station) return;
 
+  const chargeVal = parseInt(document.getElementById('strat-charge').value);
+  const dischargeVal = parseInt(document.getElementById('strat-discharge').value);
+  const reserveVal = parseInt(document.getElementById('strat-reserve').value);
+
+  // 互斥校验：充电阈值必须 < 放电阈值
+  if (chargeVal >= dischargeVal) {
+    showToast(getTrans('invalid_thresholds'), 'error');
+    return; // 不关闭 modal，不保存
+  }
+
   station.strategy = station.strategy || {};
-  station.strategy.charge_threshold = parseInt(document.getElementById('strat-charge').value);
-  station.strategy.discharge_threshold = parseInt(document.getElementById('strat-discharge').value);
-  station.strategy.reserve_soc = parseInt(document.getElementById('strat-reserve').value);
+  station.strategy.charge_threshold = chargeVal;
+  station.strategy.discharge_threshold = dischargeVal;
+  station.strategy.reserve_soc = reserveVal;
 
   closeStrategyModal();
   showToast(getTrans('strategy_saved'), 'success');

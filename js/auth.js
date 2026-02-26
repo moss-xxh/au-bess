@@ -80,6 +80,8 @@ const TRANSLATIONS = {
     // SoH Trend
     soh_trend: 'SoH Degradation Trend (30 Days)',
     soh_trend_hint: 'Battery health trajectory across all stations',
+    simulated_data_hint: '* Simulated historical data for demonstration purposes',
+    invalid_thresholds: 'Charge threshold must be lower than discharge threshold',
 
     // Reports
     export_csv: 'Export CSV',
@@ -230,6 +232,8 @@ const TRANSLATIONS = {
     // SoH 趋势
     soh_trend: '电池健康度 30 天衰减趋势',
     soh_trend_hint: '全部电站的健康度变化轨迹',
+    simulated_data_hint: '* 演示环境下的模拟历史数据',
+    invalid_thresholds: '充电阈值必须低于放电阈值',
 
     // 报表
     export_csv: '导出 CSV',
