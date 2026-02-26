@@ -229,7 +229,15 @@ function renderStationCard(station, theme, isOwner) {
       </div>
       <div>
         <p class="text-xs text-slate-500">Remaining</p>
-        <p class="text-sm text-white mt-0.5 font-mono">${typeof leaseRemaining === 'number' ? leaseRemaining + ' days' : '-'}</p>
+        ${typeof leaseRemaining === 'number'
+          ? (leaseRemaining > 0
+            ? `<p class="text-sm text-white mt-0.5 font-mono">${leaseRemaining} days</p>`
+            : `<p class="text-sm text-red-400 mt-0.5 font-mono font-bold flex items-center gap-1">
+                <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                ${leaseRemaining === 0 ? 'Expires today' : Math.abs(leaseRemaining) + ' days overdue'}
+              </p>`)
+          : '<p class="text-sm text-white mt-0.5 font-mono">-</p>'
+        }
       </div>
     </div>
   ` : '';

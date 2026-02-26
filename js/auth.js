@@ -10,8 +10,8 @@ const users = [
   { id: 'op_b', role: 'operator', name: 'VoltEdge Energy' }
 ];
 
-// ============ 电站数据 ============
-let stations = [
+// ============ 电站默认数据 ============
+const DEFAULT_STATIONS = [
   {
     id: 'st_01',
     name: 'Sydney North BESS',
@@ -61,6 +61,33 @@ let stations = [
     annual_fee: 0
   }
 ];
+
+// ============ 从 localStorage 加载或使用默认数据 ============
+let stations = loadStations();
+
+function loadStations() {
+  const saved = localStorage.getItem('stations');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      return JSON.parse(JSON.stringify(DEFAULT_STATIONS));
+    }
+  }
+  return JSON.parse(JSON.stringify(DEFAULT_STATIONS));
+}
+
+function saveStations() {
+  localStorage.setItem('stations', JSON.stringify(stations));
+}
+
+/**
+ * 重置电站数据为默认值（调试用）
+ */
+function resetStations() {
+  localStorage.removeItem('stations');
+  stations = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
+}
 
 // ============ 角色获取 ============
 
@@ -130,6 +157,9 @@ function assignStation(stationId, targetOpId) {
     station.annual_fee = 500000; // 默认年费 50万 AUD
   }
 
+  // 持久化到 localStorage
+  saveStations();
+
   return true;
 }
 
@@ -145,7 +175,7 @@ function getLeaseRemaining(endDate) {
   const end = new Date(endDate);
   const now = new Date();
   const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-  return diff > 0 ? diff : 0;
+  return diff; // 允许返回负数，UI 层处理过期样式
 }
 
 /**
