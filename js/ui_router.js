@@ -22,6 +22,7 @@ const THEMES = {
 };
 
 let currentView = 'dashboard';
+let activeMenuId = 'assets';
 
 function getMenus() {
   return {
@@ -52,7 +53,7 @@ function switchView(viewId) {
   if (viewId === 'reports') {
     dashView.classList.add('hidden');
     reportView.classList.remove('hidden');
-    if (typeof renderReports === 'function') renderReports();
+    if (typeof renderReports === 'function') renderReports(reportSubView);
   } else {
     reportView.classList.add('hidden');
     dashView.classList.remove('hidden');
@@ -73,6 +74,7 @@ function initDashboard() {
 
   renderSidebar(role, theme);
   renderHeader(role, theme);
+  renderKPI(role, theme);
   renderMarketBanner();
   renderStationList(theme, isOwner);
   closeMobileMenu();
@@ -92,6 +94,9 @@ function onSimUpdate(price, history) {
   const isOwner = role === 'owner';
   const theme = THEMES[isOwner ? 'owner' : 'operator'];
 
+  // 更新 KPI
+  updateKPI(role, theme, price);
+
   // 更新市场横幅
   updateMarketBanner(price);
 
@@ -109,6 +114,86 @@ function onSimUpdate(price, history) {
   // 如果当前在报表视图，实时更新
   if (currentView === 'reports' && typeof renderReports === 'function') {
     renderReports();
+  }
+}
+
+// ============ KPI 总览卡片 ============
+
+function renderKPI(role, theme) {
+  const container = document.getElementById('kpi-container');
+  if (!container) return;
+
+  const isOwner = role === 'owner';
+  const myStations = getStationsByRole();
+
+  if (isOwner) {
+    const totalCapMW = stations.reduce((s, st) => s + parseCapacity(st.capacity).mw, 0);
+    const totalCapMWh = stations.reduce((s, st) => s + parseCapacity(st.capacity).mwh, 0);
+    const avgSoh = stations.length > 0 ? stations.reduce((s, st) => s + st.soh, 0) / stations.length : 0;
+    const todayRev = stations.reduce((s, st) => s + (st.revenue_today || 0), 0);
+    const monthRev = todayRev * 30;
+    const unassignedCount = stations.filter(s => s.operator_id === 'unassigned').length;
+
+    container.innerHTML = `
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        ${kpiCard(getTrans('kpi_total_cap'), `${totalCapMW}MW / ${totalCapMWh}MWh`, 'battery-charging', theme.accent)}
+        ${kpiCard(getTrans('kpi_month_rev'), `A$${Math.abs(monthRev).toFixed(0)}`, 'trending-up', monthRev >= 0 ? 'text-emerald-400' : 'text-red-400', 'kpi-month-rev')}
+        ${kpiCard(getTrans('kpi_avg_soh'), `${avgSoh.toFixed(4)}%`, 'heart-pulse', avgSoh > 99 ? 'text-emerald-400' : 'text-amber-400', 'kpi-avg-soh')}
+        ${kpiCard(getTrans('kpi_unassigned'), `${unassignedCount} station${unassignedCount !== 1 ? 's' : ''}`, 'alert-circle', unassignedCount > 0 ? 'text-amber-400' : 'text-emerald-400')}
+      </div>
+    `;
+  } else {
+    const totalCapMW = myStations.reduce((s, st) => s + parseCapacity(st.capacity).mw, 0);
+    const totalCapMWh = myStations.reduce((s, st) => s + parseCapacity(st.capacity).mwh, 0);
+    const todayRev = myStations.reduce((s, st) => s + (st.revenue_today || 0), 0);
+    const avgSoc = myStations.length > 0 ? myStations.reduce((s, st) => s + st.soc, 0) / myStations.length : 0;
+    const price = typeof getCurrentPrice === 'function' ? getCurrentPrice() : 0;
+
+    container.innerHTML = `
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        ${kpiCard(getTrans('kpi_managed_cap'), `${totalCapMW}MW / ${totalCapMWh}MWh`, 'battery-charging', theme.accent)}
+        ${kpiCard(getTrans('kpi_today_rev'), `${todayRev >= 0 ? '' : '-'}A$${Math.abs(todayRev).toFixed(2)}`, 'dollar-sign', todayRev >= 0 ? 'text-emerald-400' : 'text-red-400', 'kpi-today-rev')}
+        ${kpiCard(getTrans('kpi_avg_soc'), `${avgSoc.toFixed(1)}%`, 'gauge', avgSoc > 40 ? 'text-emerald-400' : 'text-amber-400', 'kpi-avg-soc')}
+        ${kpiCard(getTrans('kpi_current_price'), `$${price.toFixed(2)}`, 'zap', price > 200 ? 'text-amber-400' : 'text-emerald-400', 'kpi-price')}
+      </div>
+    `;
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function kpiCard(label, value, icon, colorClass, dataId) {
+  return `
+    <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i data-lucide="${icon}" class="w-4 h-4 ${colorClass}"></i>
+        <span class="text-xs text-slate-400">${label}</span>
+      </div>
+      <p class="text-lg md:text-xl font-bold font-mono ${colorClass}" ${dataId ? `id="${dataId}"` : ''}>${value}</p>
+    </div>
+  `;
+}
+
+function updateKPI(role, theme, price) {
+  const isOwner = role === 'owner';
+  const myStations = getStationsByRole();
+
+  if (isOwner) {
+    const avgSoh = stations.length > 0 ? stations.reduce((s, st) => s + st.soh, 0) / stations.length : 0;
+    const todayRev = stations.reduce((s, st) => s + (st.revenue_today || 0), 0);
+    const el1 = document.getElementById('kpi-month-rev');
+    const el2 = document.getElementById('kpi-avg-soh');
+    if (el1) el1.textContent = `A$${Math.abs(todayRev * 30).toFixed(0)}`;
+    if (el2) el2.textContent = `${avgSoh.toFixed(4)}%`;
+  } else {
+    const todayRev = myStations.reduce((s, st) => s + (st.revenue_today || 0), 0);
+    const avgSoc = myStations.length > 0 ? myStations.reduce((s, st) => s + st.soc, 0) / myStations.length : 0;
+    const el1 = document.getElementById('kpi-today-rev');
+    const el2 = document.getElementById('kpi-avg-soc');
+    const el3 = document.getElementById('kpi-price');
+    if (el1) { el1.textContent = `${todayRev >= 0 ? '' : '-'}A$${Math.abs(todayRev).toFixed(2)}`; el1.className = `text-lg md:text-xl font-bold font-mono ${todayRev >= 0 ? 'text-emerald-400' : 'text-red-400'} revenue-tick`; }
+    if (el2) el2.textContent = `${avgSoc.toFixed(1)}%`;
+    if (el3) { el3.textContent = `$${price.toFixed(2)}`; el3.className = `text-lg md:text-xl font-bold font-mono ${price > 200 ? 'text-amber-400' : 'text-emerald-400'} revenue-tick`; }
   }
 }
 
@@ -208,10 +293,10 @@ function renderSidebar(role, theme) {
     </div>
     <nav class="flex-1 p-4 space-y-1">
       ${menuItems.map((item) => {
-        const isActive = (item.view === currentView) || (currentView === 'dashboard' && (item.id === 'assets' || item.id === 'portfolio' || item.id === 'dispatch'));
+        const isActive = item.id === activeMenuId;
         return `
         <a href="#" data-menu="${item.id}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
-          ${isActive && item.view === currentView ? theme.sidebarActive : theme.sidebarText + ' ' + theme.sidebarHover}"
+          ${isActive ? theme.sidebarActive : theme.sidebarText + ' ' + theme.sidebarHover}"
           onclick="handleMenuClick('${item.id}', '${item.view}'); return false;">
           <i data-lucide="${item.icon}" class="w-4 h-4"></i>
           ${getTrans(item.labelKey)}
@@ -382,6 +467,17 @@ function renderStationCard(station, theme, isOwner) {
     remainingHtml = '<p class="text-sm text-white mt-0.5 font-mono">-</p>';
   }
 
+  // Strategy button (operator only)
+  const strategyBtn = (!isOwner && !isUnassigned) ? `
+    <div class="mt-4 pt-4 border-t border-white/10">
+      <button onclick="openStrategyModal('${station.id}')"
+        class="w-full py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors flex items-center justify-center gap-2">
+        <i data-lucide="settings" class="w-4 h-4"></i>
+        ${getTrans('strategy_panel')}
+      </button>
+    </div>
+  ` : '';
+
   // Assignment control (owner only)
   const assignControl = isOwner ? `
     <div class="mt-4 pt-4 border-t border-white/10">
@@ -458,6 +554,7 @@ function renderStationCard(station, theme, isOwner) {
 
       ${leaseInfo}
       ${assignControl}
+      ${strategyBtn}
     </div>
   `;
 }
@@ -502,9 +599,18 @@ function updateStationCards(theme, isOwner) {
 
 function handleMenuClick(menuId, viewId) {
   closeMobileMenu();
+
+  // 设置 report sub-view
+  if (menuId === 'health') {
+    reportSubView = 'health';
+  } else if (menuId === 'lease' || menuId === 'logs') {
+    reportSubView = 'default';
+  }
+
   switchView(viewId);
 
   // 更新侧边栏高亮
+  activeMenuId = menuId;
   const role = getCurrentUser();
   const isOwner = role === 'owner';
   const theme = THEMES[isOwner ? 'owner' : 'operator'];
@@ -557,6 +663,133 @@ function showToast(msg, type = 'success') {
   document.body.appendChild(toast);
   if (window.lucide) lucide.createIcons();
   setTimeout(() => { toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, 2000);
+}
+
+// ============ 策略模态框 ============
+
+function openStrategyModal(stationId) {
+  const station = stations.find(s => s.id === stationId);
+  if (!station) return;
+
+  const strat = station.strategy || { charge_threshold: 50, discharge_threshold: 200, reserve_soc: 10, mode: 'auto' };
+
+  // Remove existing modal
+  const existing = document.getElementById('strategy-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'strategy-modal';
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
+  modal.innerHTML = `
+    <div class="absolute inset-0 bg-black/60" onclick="closeStrategyModal()"></div>
+    <div class="relative bg-slate-900 border border-white/10 rounded-2xl w-full max-w-md p-6 auth-step-enter">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-lg font-bold text-white">${getTrans('strategy_panel')}</h3>
+          <p class="text-sm text-slate-400">${station.name}</p>
+        </div>
+        <button onclick="closeStrategyModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Charge Threshold -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm text-slate-300">${getTrans('charge_at')}</label>
+          <span id="strat-charge-val" class="text-sm font-mono text-blue-400 font-bold">$${strat.charge_threshold}</span>
+        </div>
+        <input type="range" id="strat-charge" min="0" max="200" value="${strat.charge_threshold}" step="5"
+          class="w-full accent-blue-500" oninput="document.getElementById('strat-charge-val').textContent='$'+this.value" />
+        <div class="flex justify-between text-xs text-slate-600 mt-1"><span>$0</span><span>$200</span></div>
+      </div>
+
+      <!-- Discharge Threshold -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm text-slate-300">${getTrans('discharge_at')}</label>
+          <span id="strat-discharge-val" class="text-sm font-mono text-emerald-400 font-bold">$${strat.discharge_threshold}</span>
+        </div>
+        <input type="range" id="strat-discharge" min="50" max="1000" value="${strat.discharge_threshold}" step="10"
+          class="w-full accent-emerald-500" oninput="document.getElementById('strat-discharge-val').textContent='$'+this.value" />
+        <div class="flex justify-between text-xs text-slate-600 mt-1"><span>$50</span><span>$1,000</span></div>
+      </div>
+
+      <!-- Reserve SoC -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm text-slate-300">${getTrans('reserve_soc')}</label>
+          <span id="strat-reserve-val" class="text-sm font-mono text-amber-400 font-bold">${strat.reserve_soc}%</span>
+        </div>
+        <input type="range" id="strat-reserve" min="5" max="50" value="${strat.reserve_soc}" step="5"
+          class="w-full accent-amber-500" oninput="document.getElementById('strat-reserve-val').textContent=this.value+'%'" />
+        <div class="flex justify-between text-xs text-slate-600 mt-1"><span>5%</span><span>50%</span></div>
+      </div>
+
+      <!-- Save -->
+      <button onclick="saveStrategy('${stationId}')"
+        class="w-full py-3 rounded-lg bg-emerald-500 text-white font-medium text-sm hover:bg-emerald-600 transition-colors mb-4">
+        ${getTrans('save_strategy')}
+      </button>
+
+      <!-- Manual Override -->
+      <div class="border-t border-white/10 pt-4">
+        <p class="text-xs text-slate-500 uppercase tracking-wider mb-3">${getTrans('manual_override')}</p>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setManualMode('${stationId}', 'manual_charge')"
+            class="py-2 rounded-lg text-xs font-medium ${strat.mode === 'manual_charge' ? 'bg-blue-500 text-white' : 'bg-white/5 text-blue-400 border border-blue-500/30'} hover:opacity-90 transition-colors">
+            ${getTrans('emergency_charge')}
+          </button>
+          <button onclick="setManualMode('${stationId}', 'manual_discharge')"
+            class="py-2 rounded-lg text-xs font-medium ${strat.mode === 'manual_discharge' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-emerald-400 border border-emerald-500/30'} hover:opacity-90 transition-colors">
+            ${getTrans('emergency_discharge')}
+          </button>
+          <button onclick="setManualMode('${stationId}', 'manual_idle')"
+            class="py-2 rounded-lg text-xs font-medium ${strat.mode === 'manual_idle' ? 'bg-red-500 text-white' : 'bg-white/5 text-red-400 border border-red-500/30'} hover:opacity-90 transition-colors">
+            ${getTrans('emergency_idle')}
+          </button>
+        </div>
+        ${strat.mode !== 'auto' ? `
+          <button onclick="setManualMode('${stationId}', 'auto')"
+            class="w-full mt-2 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white transition-colors">
+            ↩ ${getTrans('mode_auto')}
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeStrategyModal() {
+  const modal = document.getElementById('strategy-modal');
+  if (modal) modal.remove();
+}
+
+function saveStrategy(stationId) {
+  const station = stations.find(s => s.id === stationId);
+  if (!station) return;
+
+  station.strategy = station.strategy || {};
+  station.strategy.charge_threshold = parseInt(document.getElementById('strat-charge').value);
+  station.strategy.discharge_threshold = parseInt(document.getElementById('strat-discharge').value);
+  station.strategy.reserve_soc = parseInt(document.getElementById('strat-reserve').value);
+
+  closeStrategyModal();
+  showToast(getTrans('strategy_saved'), 'success');
+}
+
+function setManualMode(stationId, mode) {
+  const station = stations.find(s => s.id === stationId);
+  if (!station) return;
+
+  station.strategy = station.strategy || {};
+  station.strategy.mode = mode;
+
+  closeStrategyModal();
+  showToast(`${station.name}: ${getTrans('mode_' + mode)}`, 'success');
 }
 
 // ============ 登出 ============

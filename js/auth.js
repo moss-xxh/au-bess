@@ -50,6 +50,37 @@ const TRANSLATIONS = {
     owner_subtitle: 'Manage your energy storage portfolio',
     operator_subtitle: 'Your assigned stations',
 
+    // KPI
+    kpi_total_cap: 'Total Capacity',
+    kpi_month_rev: 'Est. Monthly Rev',
+    kpi_avg_soh: 'Average SoH',
+    kpi_unassigned: 'Unassigned',
+    kpi_managed_cap: 'Managed Cap.',
+    kpi_today_rev: "Today's Revenue",
+    kpi_avg_soc: 'Avg SoC',
+    kpi_current_price: 'Spot Price',
+
+    // Strategy
+    strategy_panel: 'Dispatch Strategy',
+    charge_at: 'Charge when <',
+    discharge_at: 'Discharge when >',
+    reserve_soc: 'Reserve SoC',
+    strategy_mode: 'Mode',
+    mode_auto: 'Auto',
+    mode_manual_charge: 'Force Charge',
+    mode_manual_discharge: 'Force Discharge',
+    mode_manual_idle: 'Force Idle',
+    manual_override: 'Manual Override',
+    save_strategy: 'Save',
+    strategy_saved: 'Strategy updated',
+    emergency_charge: '⚡ Force Charge',
+    emergency_discharge: '🔋 Force Discharge',
+    emergency_idle: '⏸ Emergency Stop',
+
+    // SoH Trend
+    soh_trend: 'SoH Degradation Trend (30 Days)',
+    soh_trend_hint: 'Battery health trajectory across all stations',
+
     // Reports
     export_csv: 'Export CSV',
     leaderboard: 'Operator Leaderboard',
@@ -168,6 +199,37 @@ const TRANSLATIONS = {
     assets_overview: '资产概览',
     owner_subtitle: '管理您的储能资产组合',
     operator_subtitle: '您负责运维的电站',
+
+    // KPI
+    kpi_total_cap: '总资产容量',
+    kpi_month_rev: '本月预估收入',
+    kpi_avg_soh: '平均健康度',
+    kpi_unassigned: '待分配',
+    kpi_managed_cap: '管理容量',
+    kpi_today_rev: '今日收益',
+    kpi_avg_soc: '平均 SoC',
+    kpi_current_price: '现货电价',
+
+    // 策略
+    strategy_panel: '调度策略面板',
+    charge_at: '充电阈值 <',
+    discharge_at: '放电阈值 >',
+    reserve_soc: '储备 SoC',
+    strategy_mode: '模式',
+    mode_auto: '自动',
+    mode_manual_charge: '强制充电',
+    mode_manual_discharge: '强制放电',
+    mode_manual_idle: '强制停机',
+    manual_override: '手动接管',
+    save_strategy: '保存',
+    strategy_saved: '策略已更新',
+    emergency_charge: '⚡ 强制充电',
+    emergency_discharge: '🔋 强制放电',
+    emergency_idle: '⏸ 紧急停机',
+
+    // SoH 趋势
+    soh_trend: '电池健康度 30 天衰减趋势',
+    soh_trend_hint: '全部电站的健康度变化轨迹',
 
     // 报表
     export_csv: '导出 CSV',
@@ -322,7 +384,7 @@ const DEFAULT_STATIONS = [
     lease_start: '2025-01-01',
     lease_end: '2028-12-31',
     annual_fee: 850000,
-    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0
+    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0, strategy: { charge_threshold: 50, discharge_threshold: 200, reserve_soc: 10, mode: 'auto' }
   },
   {
     id: 'st_02',
@@ -335,7 +397,7 @@ const DEFAULT_STATIONS = [
     lease_start: '2024-06-01',
     lease_end: '2027-05-31',
     annual_fee: 420000,
-    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0
+    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0, strategy: { charge_threshold: 50, discharge_threshold: 200, reserve_soc: 10, mode: 'auto' }
   },
   {
     id: 'st_03',
@@ -348,7 +410,7 @@ const DEFAULT_STATIONS = [
     lease_start: '2025-02-15',
     lease_end: '2030-02-14',
     annual_fee: 1200000,
-    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0
+    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0, strategy: { charge_threshold: 50, discharge_threshold: 200, reserve_soc: 10, mode: 'auto' }
   },
   {
     id: 'st_04',
@@ -361,7 +423,7 @@ const DEFAULT_STATIONS = [
     lease_start: '-',
     lease_end: '-',
     annual_fee: 0,
-    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0
+    soc: 50, efficiency: 0.88, revenue_today: 0, status: 'IDLE', cumulative_mwh: 0, strategy: { charge_threshold: 50, discharge_threshold: 200, reserve_soc: 10, mode: 'auto' }
   }
 ];
 
