@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>澳洲储能电站 - Australia Energy Storage Power Station</title>
+    
+    <!-- 零闪烁主题设置 -->
+    <script>
+        (function() {
+            var saved = localStorage.getItem('au002_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+    </script>
+    
+    <link rel="stylesheet" href="css/theme.css">
+    
+    <!-- ECharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+    
+    <style>
+        /* ===== 澳洲储能电站：零sidebar专业Top-Nav架构 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* ===== TOP NAVIGATION BAR ===== */
+        .top-nav-bar {
+            display: flex;
+            align-items: center;
+            height: 64px;
+            padding: 0 var(--spacing-lg);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-secondary);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        /* 左侧品牌区域 - 绝对保护 */
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            min-width: 280px;
+            width: 280px;
+            flex-shrink: 0;
+            overflow: hidden;
+            border-right: 1px solid var(--border-secondary);
+            padding-right: var(--spacing-lg);
+            margin-right: var(--spacing-lg);
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .brand-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 中央导航区域 */
+        .nav-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .nav-item.active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .nav-label {
+            font-size: 14px;
+        }
+
+        /* 右侧控制区域 */
+        .controls-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-shrink: 0;
+            min-width: 200px;
+            justify-content: flex-end;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .control-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--color-primary);
+            transform: translateY(-1px);
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .welcome-message {
+            max-width: 600px;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            background: linear-gradient(135deg, var(--text-primary), var(--color-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            border: 2px solid var(--color-primary);
+            background: transparent;
+            color: var(--color-primary);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .action-btn:hover {
+            background: var(--color-primary);
+            color: var(--bg-base);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.3);
+        }
+
+        .action-btn.secondary {
+            border-color: var(--border-secondary);
+            color: var(--text-secondary);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .brand-section {
+                min-width: 240px;
+                width: 240px;
+            }
+            
+            .brand-title {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav-bar {
+                padding: 0 var(--spacing-md);
+            }
+            
+            .brand-section {
+                min-width: 200px;
+                width: 200px;
+                margin-right: var(--spacing-sm);
+                padding-right: var(--spacing-sm);
+            }
+            
+            .nav-section {
+                display: none;
+            }
+            
+            .controls-section {
+                min-width: auto;
+            }
+            
+            .main-content {
+                padding: var(--spacing-lg);
+            }
+            
+            .welcome-title {
+                font-size: 24px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 澳洲储能电站：零sidebar主容器 -->
+    <div class="main-container">
+        
+        <!-- 顶部导航栏（无任何sidebar残留） -->
+        <header class="top-nav-bar">
+            
+            <!-- 左侧品牌区域（绝对保护） -->
+            <div class="brand-section">
+                <img src="assets/logo.png" alt="澳洲储能电站" class="brand-logo">
+                <div class="brand-text">
+                    <div class="brand-title">澳洲储能电站</div>
+                    <div class="brand-subtitle">Australia Energy Storage Power Station</div>
+                </div>
+            </div>
+            
+            <!-- 中央导航区域 -->
+            <nav class="nav-section" id="main-navigation">
+                <a href="/pages/operator/dispatch.html" class="nav-item">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-label">调度中心</span>
+                </a>
+                <a href="/pages/owner/dashboard.html" class="nav-item">
+                    <span class="nav-icon">🛡️</span>
+                    <span class="nav-label">安全看板</span>
+                </a>
+                <a href="/pages/operator/revenue.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-label">收益分析</span>
+                </a>
+            </nav>
+            
+            <!-- 右侧控制区域 -->
+            <div class="controls-section">
+                <button class="control-btn" id="theme-toggle" title="主题切换">🌓</button>
+                <button class="control-btn" id="lang-toggle" title="语言切换">中</button>
+                <button class="control-btn" id="role-toggle" title="角色切换">👤</button>
+                <button class="control-btn" id="logout-btn" title="退出登录">🚪</button>
+            </div>
+            
+        </header>
+        
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <div class="welcome-message">
+                <h1 class="welcome-title">澳洲储能电站管理系统</h1>
+                <p class="welcome-subtitle">
+                    专业的电池储能系统(BESS)管理平台<br>
+                    支持实时调度、收益分析、智能策略优化
+                </p>
+                <div class="action-buttons">
+                    <a href="/pages/login.html" class="action-btn">
+                        <span>🔐</span>
+                        <span>立即登录</span>
+                    </a>
+                    <a href="/pages/role-select.html" class="action-btn secondary">
+                        <span>👤</span>
+                        <span>角色选择</span>
+                    </a>
+                </div>
+            </div>
+        </main>
+        
+    </div>
+
+    <!-- 核心脚本 -->
+    <script>
+        // 控制按钮事件绑定
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 主题切换
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('au002_theme', next);
+                });
+            }
+            
+            // 角色切换
+            const roleToggle = document.getElementById('role-toggle');
+            if (roleToggle) {
+                roleToggle.addEventListener('click', function() {
+                    window.location.href = '/pages/role-select.html';
+                });
+            }
+            
+            // 登出
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    localStorage.clear();
+                    window.location.href = '/pages/login.html';
+                });
+            }
+            
+            // 检查登录状态并更新导航
+            const session = JSON.parse(localStorage.getItem('au002_session') || '{}');
+            if (session.token && session.role) {
+                updateNavigation(session.role);
+            }
+        });
+        
+        function updateNavigation(role) {
+            const nav = document.getElementById('main-navigation');
+            if (!nav) return;
+            
+            if (role === 'owner') {
+                nav.innerHTML = `
+                    <a href="/pages/owner/dashboard.html" class="nav-item">
+                        <span class="nav-icon">🛡️</span>
+                        <span class="nav-label">安全看板</span>
+                    </a>
+                    <a href="/pages/owner/stations.html" class="nav-item">
+                        <span class="nav-icon">⚡</span>
+                        <span class="nav-label">电站管理</span>
+                    </a>
+                    <a href="/pages/owner/customers.html" class="nav-item">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-label">运维管理</span>
+                    </a>
+                `;
+            } else if (role === 'operator') {
+                nav.innerHTML = `
+                    <a href="/pages/operator/dispatch.html" class="nav-item">
+                        <span class="nav-icon">⚡</span>
+                        <span class="nav-label">调度中心</span>
+                    </a>
+                    <a href="/pages/operator/assets.html" class="nav-item">
+                        <span class="nav-icon">🏭</span>
+                        <span class="nav-label">资产管理</span>
+                    </a>
+                    <a href="/pages/operator/revenue.html" class="nav-item">
+                        <span class="nav-icon">💰</span>
+                        <span class="nav-label">收益分析</span>
+                    </a>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

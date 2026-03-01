@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="design-system.css">
+    <script src="page-transition.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运维管理 - X Energi</title>
+    <link rel="stylesheet" href="components/common-styles.css">
+    <link rel="stylesheet" href="components/i18n.css">
+    <link rel="stylesheet" href="components/notification-center.css">
+    <link rel="stylesheet" href="components/header-nav.css">
+    <link rel="stylesheet" href="components/user-dropdown.css">
+    <link rel="stylesheet" href="components/pagination.css">
+    <link rel="stylesheet" href="components/standard-layout.css">
+    <script src="components/i18n.js"></script>
+    <script src="components/simple-message-icon.js"></script>
+    <script src="components/header-nav.js"></script>
+    <script src="components/user-menu-link.js"></script>
+    <script src="components/user-dropdown-simple-new.js"></script>
+    <script src="components/pagination.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Page-specific styles */
+        body {
+            background: #000 !important;
+        }
+
+        .container {
+            max-width: 95%;
+            margin: 0 auto;
+            padding: 88px var(--page-padding, 24px) 40px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Fixed Header Area */
+        .fixed-header-area {
+            flex-shrink: 0;
+            background: #000;
+            z-index: 10;
+            padding-bottom: 20px;
+        }
+
+        /* Scrollable Content */
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header-left {
+            text-align: left;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 500;
+            color: var(--color-text);
+            margin: 0;
+            letter-spacing: -2px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Search Section */
+        .search-filter-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input {
+            width: 180px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 255, 136, 0.5);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .filter-select {
+            width: 180px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' fill-opacity='0.5' d='M6 8.5L1.5 4h9z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+
+        .filter-select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 255, 136, 0.5);
+        }
+
+        .filter-select option {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 8px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn.primary {
+            background: #00ff88;
+            border-color: #00ff88;
+            color: #000;
+            font-weight: 500;
+        }
+
+        .filter-btn.secondary {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-btn.export {
+            background: rgba(30, 127, 255, 0.1);
+            border: 1px solid rgba(30, 127, 255, 0.3);
+            color: var(--color-accent);
+        }
+
+
+        .filter-btn.primary:hover {
+            background: #00e67a;
+            border-color: #00e67a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .filter-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .filter-btn.export:hover {
+            background: rgba(30, 127, 255, 0.15);
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--color-bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--color-shadow);
+            border: 1.5px solid var(--color-border);
+            width: 100%;
+            margin-top: 14px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        /* Table Actions Header */
+        .table-actions-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        /* Table Wrapper */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--color-border);
+        }
+
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 24px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 20px 24px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateY(-1px);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 185, 107, 0.1);
+            color: var(--color-primary);
+        }
+
+        .status-badge.inactive {
+            background: rgba(255, 149, 0, 0.1);
+            color: #ff9500;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 4px 12px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .action-btn.edit {
+            color: #00ff88;
+        }
+
+        .action-btn.delete {
+            color: #ff6b6b;
+        }
+
+        /* Form Card Styles - matching search-filter-section */
+        .form-card-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .form-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .form-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-card-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding-top: 16px;
+        }
+
+        /* Responsive design for form cards */
+        @media (max-width: 768px) {
+            .form-card-section {
+                padding: 16px;
+            }
+            
+            .form-card-body {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .form-card-body {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        /* Drawer Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 2000;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .modal-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal-container {
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 600px;
+            max-width: 90%;
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: -10px 0 40px rgba(0,0,0,0.3);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: translateX(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--color-border);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .required {
+            color: #ff3b30;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' fill-opacity='0.5' d='M6 8.5L1.5 4h9z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        select.form-input option {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 8px;
+        }
+
+        .textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 24px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-label {
+            font-size: 14px;
+            color: var(--color-text);
+            cursor: pointer;
+        }
+
+        /* Permissions Tree */
+        .permissions-section {
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            padding: 16px;
+            background: var(--color-bg);
+        }
+
+        .permissions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .permissions-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .checkbox-input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+        }
+
+        .permissions-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tree-node {
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tree-parent {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--color-bg-card);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tree-parent:hover {
+            background: var(--color-bg);
+        }
+
+        .tree-toggle {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            transition: transform 0.2s ease;
+        }
+
+        .tree-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tree-icon {
+            font-size: 16px;
+        }
+
+        .tree-text {
+            font-size: 14px;
+            color: var(--color-text);
+            flex: 1;
+        }
+
+        .tree-children {
+            padding: 8px 12px 8px 36px;
+            background: var(--color-bg);
+            display: none;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        .tree-child {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+        }
+
+        .tree-child span {
+            font-size: 13px;
+            color: var(--color-text);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px 24px;
+            border-top: 1px solid var(--color-border);
+            background: var(--color-bg);
+        }
+
+        .btn-cancel,
+        .btn-confirm {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-cancel {
+            background: var(--color-bg-card);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-cancel:hover {
+            background: var(--color-border);
+        }
+
+        .btn-confirm {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .btn-confirm:hover {
+            background: #00a861;
+        }
+
+        /* Password Input */
+        .password-input-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+        }
+
+        /* Confirm Modal */
+        .confirm-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .confirm-modal-overlay.active {
+            display: flex;
+        }
+
+        .confirm-modal-container {
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .confirm-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .confirm-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 59, 48, 0.1);
+            border: 2px solid rgba(255, 59, 48, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #ff3b30;
+        }
+
+        .confirm-content {
+            flex: 1;
+        }
+
+        .confirm-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+
+        .confirm-message {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .confirm-details {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .confirm-user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .confirm-user-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .confirm-user-email {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .confirm-warning {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(255, 59, 48, 0.05);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+            border-radius: 10px;
+        }
+
+        .confirm-warning-icon {
+            font-size: 16px;
+            color: #ff3b30;
+        }
+
+        .confirm-warning-text {
+            font-size: 13px;
+            color: var(--color-text);
+            line-height: 1.4;
+        }
+
+        .confirm-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-confirm-cancel,
+        .btn-confirm-delete {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-confirm-cancel {
+            background: var(--color-bg);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-confirm-cancel:hover {
+            background: var(--color-border);
+        }
+
+        .btn-confirm-delete {
+            background: #ff3b30;
+            color: #fff;
+        }
+
+        .btn-confirm-delete:hover {
+            background: #ff1744;
+        }
+
+        /* Toast Styles */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            padding: 16px;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.hide {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon {
+            background: rgba(0, 185, 107, 0.1);
+            color: var(--color-primary);
+        }
+
+        .toast.error .toast-icon {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+        }
+
+        .toast.warning .toast-icon {
+            background: rgba(255, 149, 0, 0.1);
+            color: #ff9500;
+        }
+
+        .toast.info .toast-icon {
+            background: rgba(30, 127, 255, 0.1);
+            color: var(--color-accent);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-close:hover {
+            color: var(--color-text);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 88px var(--page-padding, 24px) 40px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .search-filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+
+            .filter-actions {
+                justify-content: stretch;
+            }
+
+            .filter-btn {
+                flex: 1;
+            }
+
+            .table-container {
+                overflow-x: scroll;
+            }
+
+            .modal-container {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .permissions-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .checkbox-group {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        (function() {
+            var isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn || isLoggedIn !== 'true') { window.location.href = 'vpp-login.html'; return; }
+            var role = localStorage.getItem('userRole');
+            if (role !== 'owner') { window.location.href = 'dashboard.html'; return; }
+        })();
+    </script>
+    <!-- Header Container -->
+    <div id="headerContainer"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Fixed Header Area -->
+        <div class="fixed-header-area">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1 class="page-title" data-i18n-key="operatorMgmt.title">运维管理</h1>
+                </div>
+                <button class="edit-button" onclick="addOrganization()" style="width: 84px; padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; border: 1px solid #00ff88; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #00ff88; color: #000;" 
+                        onmouseover="this.style.background='#00e67a'; this.style.borderColor='#00e67a'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(0, 255, 136, 0.3)';" 
+                        onmouseout="this.style.background='#00ff88'; this.style.borderColor='#00ff88'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <span data-i18n-key="operatorMgmt.buttons.add">新建运维方</span>
+                </button>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-filter-section" style="margin-top: 35px !important;">
+                <input type="text" class="search-input" id="orgSearchInput" 
+                       data-i18n-placeholder="organization.placeholder.userName" 
+                       placeholder="请输入用户名称...">
+                <select class="filter-select" id="orgStatusFilter">
+                    <option value="" data-i18n-key="organization.status.allStatus">所有状态</option>
+                    <option value="active" data-i18n-key="organization.status.active">启用</option>
+                    <option value="inactive" data-i18n-key="organization.status.inactive">禁用</option>
+                </select>
+                <input type="text" class="search-input" id="orgEmailInput" 
+                       data-i18n-placeholder="organization.placeholder.userEmail" 
+                       placeholder="请输入用户邮箱...">
+                <div class="filter-actions">
+                    <button class="filter-btn primary" onclick="searchUsers()">
+                        <span></span>
+                        <span data-i18n-key="organization.buttons.search">查询</span>
+                    </button>
+                    <button class="filter-btn secondary" onclick="resetSearch()">
+                        <span></span>
+                        <span data-i18n-key="organization.buttons.reset">重置</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="scrollable-content">
+            <!-- Table Card -->
+            <div class="table-card" style="background: var(--color-bg-card); border-radius: var(--radius); box-shadow: var(--color-shadow); border: 1.5px solid var(--color-border); width: 100%; margin-top: 4px; margin-bottom: 20px; padding: 20px;">
+                <!-- Table Actions Header -->
+                <div class="table-actions-header" style="display: flex; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--color-border);">
+                    <button class="filter-btn export" onclick="exportOrganizationData()"
+                            style="background: rgba(30, 127, 255, 0.1); border: 1px solid rgba(30, 127, 255, 0.3); color: var(--color-accent); padding: 10px 16px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: all 0.3s; display: flex; align-items: center; gap: 6px;">
+                        <span></span>
+                        <span data-i18n-key="organization.buttons.export">导出</span>
+                    </button>
+                    <button class="filter-btn refresh" onclick="refreshOrganizationData()"
+                            style="background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: #00ff88; padding: 10px 16px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: all 0.3s; display: flex; align-items: center; gap: 6px;">
+                        <span></span>
+                        <span data-i18n-key="organization.buttons.refresh">刷新</span>
+                    </button>
+                </div>
+                
+                <!-- Table -->
+                <div class="table-wrapper" style="overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--color-border);">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n-key="operatorMgmt.table.name">运维方名称</th>
+                                <th data-i18n-key="operatorMgmt.table.contact">联系人</th>
+                                <th data-i18n-key="operatorMgmt.table.stations">分配电站</th>
+                                <th data-i18n-key="operatorMgmt.table.stationCount">电站数</th>
+                                <th data-i18n-key="operatorMgmt.table.rentalEnd">租赁到期</th>
+                                <th data-i18n-key="operatorMgmt.table.status">状态</th>
+                                <th data-i18n-key="operatorMgmt.table.action">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- Table data will be generated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="organizationPaginationContainer" style="margin-top: 20px; margin-bottom: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- User Modal (Slide-in Drawer) -->
+    <div class="modal-overlay" id="userModal" onclick="handleModalClick(event)">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">新建运维方</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> <span data-i18n-key="mgmt_op_name">运维方名称</span></label>
+                        <input type="text" class="form-input" id="userName" placeholder="e.g. Alpha Energy Services" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> <span data-i18n-key="mgmt_contact">联系人</span></label>
+                        <input type="text" class="form-input" id="userContact" placeholder="e.g. James Wilson" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> <span data-i18n-key="mgmt_account">登录账号</span></label>
+                        <input type="email" class="form-input" id="userEmail" placeholder="e.g. james@alphaenergy.com.au" required>
+                    </div>
+                    <div class="form-group" id="passwordGroup">
+                        <label class="form-label"><span class="required">*</span> <span data-i18n-key="mgmt_password">密码</span></label>
+                        <div class="password-input-container">
+                            <input type="password" class="form-input" id="userPassword" placeholder="••••••••" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">👁</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span data-i18n-key="mgmt_assign_stations">分配电站</span></label>
+                        <div id="stationCheckboxList" style="max-height:200px;overflow-y:auto;border:1px solid var(--color-border);border-radius:10px;padding:12px;background:var(--color-bg);"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> <span data-i18n-key="mgmt_lease_end">租赁到期日</span></label>
+                        <input type="date" class="form-input" id="userLeaseExpiry" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span data-i18n-key="operatorMgmt.table.status">状态</span></label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" class="radio-input" id="statusActive" name="status" value="active" checked>
+                                <label class="radio-label" for="statusActive" data-i18n-key="mgmt_status_active">正常</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" class="radio-input" id="statusInactive" name="status" value="inactive">
+                                <label class="radio-label" for="statusInactive" data-i18n-key="organization.status.inactive">禁用</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-i18n-key="organization.modal.remark">备注</label>
+                        <textarea class="form-input textarea" id="userRemark" placeholder="备注信息..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal()">取消</button>
+                <button type="button" class="btn-confirm" onclick="saveUser()">确定</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- Confirm Delete Modal -->
+    <div class="confirm-modal-overlay" id="confirmDeleteModal" onclick="handleConfirmModalClick(event)">
+        <div class="confirm-modal-container">
+            <div class="confirm-modal-header">
+                <div class="confirm-icon">⚠️</div>
+                <div class="confirm-content">
+                    <h3 class="confirm-title" data-i18n-key="organization.deleteConfirm.title">确认删除</h3>
+                    <p class="confirm-message" data-i18n-key="organization.deleteConfirm.message">此操作不可撤销，请确认是否删除该用户</p>
+                </div>
+            </div>
+            <div class="confirm-details">
+                <div class="confirm-user-info">
+                    <span class="confirm-user-name" id="confirmUserName">用户名称</span>
+                </div>
+                <div class="confirm-user-email" id="confirmUserEmail">user@example.com</div>
+            </div>
+            <div class="confirm-warning">
+                <span class="confirm-warning-icon">🚨</span>
+                <span class="confirm-warning-text" data-i18n-key="organization.deleteConfirm.warning">删除后该用户将无法访问系统，所有相关数据将被永久移除</span>
+            </div>
+            <div class="confirm-modal-footer">
+                <button type="button" class="btn-confirm-cancel" onclick="closeConfirmModal()" data-i18n-key="organization.deleteConfirm.cancel">取消</button>
+                <button type="button" class="btn-confirm-delete" onclick="confirmDeleteUser()" data-i18n-key="organization.deleteConfirm.confirm">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/organization-app.js"></script>
+    <script src="components/global-notifications.js"></script>
+</body>
+</html>
