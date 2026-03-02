@@ -1804,7 +1804,7 @@
                     xAxis: timeLabels[startIdx],
                     yAxis: parseFloat(socData[startIdx]), // 跟随SOC数据
                     symbol: 'circle',
-                    symbolSize: 18,
+                    symbolSize: 22,
                     symbolOffset: [0, 8],
                     itemStyle: {
                         color: period.isAuto ? 'rgba(138, 43, 226, 0.9)' : 'rgba(255, 140, 0, 0.9)',
@@ -1813,8 +1813,8 @@
                     },
                     label: {
                         show: true,
-                        formatter: period.isAuto ? '智' : '人',
-                        fontSize: 10,
+                        formatter: period.isAuto ? (window.i18n ? window.i18n.getText('operationLogDetail.chart.autoMark') : '🤖') : (window.i18n ? window.i18n.getText('operationLogDetail.chart.manualMark') : '🤚'),
+                        fontSize: 13,
                         fontWeight: 700,
                         color: '#fff',
                         offset: [0, 0]
