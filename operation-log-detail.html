@@ -1579,7 +1579,7 @@
                     },
                     label: {
                         show: true,
-                        formatter: '充',
+                        formatter: () => window.i18n ? window.i18n.getText('operationLogDetail.chart.chargeMarker') : '充',
                         fontSize: 10,
                         fontWeight: 600,
                         color: '#00ff88',
@@ -1630,7 +1630,7 @@
                     },
                     label: {
                         show: true,
-                        formatter: '充',
+                        formatter: () => window.i18n ? window.i18n.getText('operationLogDetail.chart.chargeMarker') : '充',
                         fontSize: 10,
                         fontWeight: 600,
                         color: '#FFB84D',
@@ -1682,7 +1682,7 @@
                     },
                     label: {
                         show: true,
-                        formatter: '放',
+                        formatter: () => window.i18n ? window.i18n.getText('operationLogDetail.chart.dischargeMarker') : '放',
                         fontSize: 10,
                         fontWeight: 600,
                         color: '#FFD60A',
@@ -1733,7 +1733,7 @@
                     },
                     label: {
                         show: true,
-                        formatter: '放',
+                        formatter: () => window.i18n ? window.i18n.getText('operationLogDetail.chart.dischargeMarker') : '放',
                         fontSize: 10,
                         fontWeight: 600,
                         color: '#FF6B6B',
@@ -2134,16 +2134,19 @@
                     formatter: function(params) {
                         if (!params || params.length === 0) return '';
                         const timeLabel = params[0].axisValue;
-                        let result = `<div style="font-weight: 600; color: #00ff88; margin-bottom: 6px;">时间: ${timeLabel}</div>`;
+                        const timeLabelText = window.i18n ? window.i18n.getText('operationLogDetail.chart.timeLabel') : '时间';
+                        const actualPriceName = window.i18n ? window.i18n.getText('operationLogDetail.chart.actualPrice') : '实际价格';
+                        const forecastPriceName = window.i18n ? window.i18n.getText('operationLogDetail.chart.forecastPrice') : '预测价格';
+                        let result = `<div style="font-weight: 600; color: #00ff88; margin-bottom: 6px;">${timeLabelText}: ${timeLabel}</div>`;
 
                         params.forEach(item => {
-                            if (item.seriesName === '实际价格') {
+                            if (item.seriesName === actualPriceName) {
                                 result += `<div style="margin-top: 4px; color: rgba(255,255,255,0.8);">
-                                    实际价格: <span style="color: #00ff88; font-weight: 600;">$${item.value}</span>
+                                    ${actualPriceName}: <span style="color: #00ff88; font-weight: 600;">$${item.value}</span>
                                 </div>`;
-                            } else if (item.seriesName === '预测价格') {
+                            } else if (item.seriesName === forecastPriceName) {
                                 result += `<div style="margin-top: 4px; color: rgba(255,255,255,0.8);">
-                                    预测价格: <span style="color: #007aff; font-weight: 600;">$${item.value}</span>
+                                    ${forecastPriceName}: <span style="color: #007aff; font-weight: 600;">$${item.value}</span>
                                 </div>`;
                             } else if (item.seriesName === 'SOC') {
                                 result += `<div style="margin-top: 4px; color: rgba(255,255,255,0.8);">
@@ -2324,7 +2327,7 @@
                     },
                     label: {
                         show: true,
-                        formatter: '开',
+                        formatter: () => window.i18n ? window.i18n.getText('operationLogDetail.chart.custodyOnMarker') : '开',
                         fontSize: 11,
                         fontWeight: 700,
                         color: '#fff',
@@ -2345,7 +2348,7 @@
                     },
                     label: {
                         show: true,
-                        formatter: '关',
+                        formatter: () => window.i18n ? window.i18n.getText('operationLogDetail.chart.custodyOffMarker') : '关',
                         fontSize: 11,
                         fontWeight: 700,
                         color: '#fff',

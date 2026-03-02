@@ -2400,7 +2400,12 @@ class I18n {
                         dispatchType: "调度类型",
                         custodyBaseline: "托管基准",
                         autoMark: "🤖",
-                        manualMark: "🤚"
+                        manualMark: "🤚",
+                        chargeMarker: "充",
+                        dischargeMarker: "放",
+                        custodyOnMarker: "开",
+                        custodyOffMarker: "关",
+                        timeLabel: "时间"
                     }
                 },
 
@@ -5013,7 +5018,12 @@ class I18n {
                         dispatchType: "Dispatch Type",
                         custodyBaseline: "Custody Baseline",
                         autoMark: "🤖",
-                        manualMark: "🤚"
+                        manualMark: "🤚",
+                        chargeMarker: "C",
+                        dischargeMarker: "D",
+                        custodyOnMarker: "On",
+                        custodyOffMarker: "Off",
+                        timeLabel: "Time"
                     }
                 },
 
