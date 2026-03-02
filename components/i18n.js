@@ -2398,7 +2398,9 @@ class I18n {
                         manualCharge: "人工充电",
                         manualDischarge: "人工放电",
                         dispatchType: "调度类型",
-                        custodyBaseline: "托管基准"
+                        custodyBaseline: "托管基准",
+                        autoMark: "🤖",
+                        manualMark: "🤚"
                     }
                 },
 
@@ -5009,7 +5011,9 @@ class I18n {
                         manualCharge: "Manual Charge",
                         manualDischarge: "Manual Discharge",
                         dispatchType: "Dispatch Type",
-                        custodyBaseline: "Custody Baseline"
+                        custodyBaseline: "Custody Baseline",
+                        autoMark: "🤖",
+                        manualMark: "🤚"
                     }
                 },
 
