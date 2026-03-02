@@ -718,7 +718,7 @@
 
     // 获取当前语言
     function getCurrentLanguage() {
-        return localStorage.getItem('language') || 'zh';
+        return localStorage.getItem('language') || 'en';
     }
 
 

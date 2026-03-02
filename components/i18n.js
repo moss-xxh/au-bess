@@ -4,7 +4,7 @@
  */
 class I18n {
     constructor(options = {}) {
-        this.defaultLanguage = options.defaultLanguage || 'zh';
+        this.defaultLanguage = options.defaultLanguage || 'en';
         this.supportedLanguages = options.supportedLanguages || {
             'zh': { name: '中文', flag: '🇨🇳', nativeName: '中文' },
             'en': { name: 'English', flag: '🇺🇸', nativeName: 'English' }
@@ -2197,8 +2197,33 @@ class I18n {
                         search: "搜索",
                         selectAll: "全选",
                     },
+                    descriptions: {
+                        highVoltage: "总压高",
+                        lowInsulation: "绝缘低",
+                        cellVoltageDiff: "单体压差大",
+                        cellVoltageHigh: "单体电压高",
+                        overTemperature: "温度过高",
+                        lowSOC: "SOC过低",
+                        commInterrupt: "通信中断",
+                        overCurrent: "过流告警",
+                    },
                     detail: {
                         title: "告警详情",
+                        alarmTime: "告警时间",
+                        alarmStation: "告警站点",
+                        alarmDevice: "告警设备",
+                        description: "告警描述",
+                        alarmLevel: "告警等级",
+                        alarmStatus: "告警状态",
+                        recoveryTime: "解决时间",
+                    },
+                    confirm: {
+                        title: "确认操作",
+                        resolve: "确认将此告警标记为已处理？",
+                        batchProcessAll: "确认一键处理所有 ${count} 条未处理告警？",
+                        batchProcessSelected: "确认一键处理选中的 ${count} 条告警？",
+                        cancel: "取消",
+                        confirm: "确认",
                     },
                     filter: {
                         allLevels: "全部告警等级",
@@ -2209,6 +2234,10 @@ class I18n {
                         fault: "故障",
                     },
                     noData: "暂无数据",
+                    statuses: {
+                        unprocessed: "未处理",
+                        processed: "已处理",
+                    },
                     table: {
                         actions: "操作",
                         alarmDevice: "告警设备",
@@ -4815,8 +4844,33 @@ class I18n {
                         search: "Search",
                         selectAll: "Select All",
                     },
+                    descriptions: {
+                        highVoltage: "High Voltage",
+                        lowInsulation: "Low Insulation",
+                        cellVoltageDiff: "Cell Voltage Diff",
+                        cellVoltageHigh: "Cell Voltage High",
+                        overTemperature: "Over Temperature",
+                        lowSOC: "Low SOC",
+                        commInterrupt: "Comm Interrupt",
+                        overCurrent: "Over Current",
+                    },
                     detail: {
                         title: "Alarm Detail",
+                        alarmTime: "Alarm Time",
+                        alarmStation: "Alarm Station",
+                        alarmDevice: "Alarm Device",
+                        description: "Description",
+                        alarmLevel: "Alarm Level",
+                        alarmStatus: "Alarm Status",
+                        recoveryTime: "Recovery Time",
+                    },
+                    confirm: {
+                        title: "Confirm",
+                        resolve: "Confirm marking this alarm as processed?",
+                        batchProcessAll: "Confirm batch processing all ${count} unprocessed alarms?",
+                        batchProcessSelected: "Confirm batch processing ${count} selected alarms?",
+                        cancel: "Cancel",
+                        confirm: "Confirm",
                     },
                     filter: {
                         allLevels: "All Alarm Levels",
@@ -4827,6 +4881,10 @@ class I18n {
                         fault: "Fault",
                     },
                     noData: "No Data",
+                    statuses: {
+                        unprocessed: "Unprocessed",
+                        processed: "Processed",
+                    },
                     table: {
                         actions: "Actions",
                         alarmDevice: "Alarm Device",

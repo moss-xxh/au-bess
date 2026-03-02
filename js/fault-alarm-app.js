@@ -10,13 +10,27 @@
 
         // Mock alarm data — dynamically generated relative to current date
         function generateMockAlarms() {
-            const descriptions = ['总压高', '绝缘低', '单体压差大', '单体电压高', '温度过高', 'SOC过低', '通信中断', '过流告警'];
+            // i18n helper
+            const t = (key, fallback) => {
+                return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : fallback;
+            };
+
+            const descriptionKeys = ['highVoltage', 'lowInsulation', 'cellVoltageDiff', 'cellVoltageHigh', 'overTemperature', 'lowSOC', 'commInterrupt', 'overCurrent'];
+            const descriptionFallbacks = ['High Voltage', 'Low Insulation', 'Cell Voltage Diff', 'Cell Voltage High', 'Over Temperature', 'Low SOC', 'Comm Interrupt', 'Over Current'];
+            const descriptions = descriptionKeys.map((key, idx) => t(`faultAlarm.descriptions.${key}`, descriptionFallbacks[idx]));
+
             const levels = ['alarm', 'fault'];
-            const levelNames = { alarm: '告警', fault: '故障' };
+            const levelNames = {
+                alarm: t('faultAlarm.levels.alarm', 'Alarm'),
+                fault: t('faultAlarm.levels.fault', 'Fault')
+            };
             const devices = ['BMS', 'PCS', 'EMS', 'METER'];
             const stations = ['Hornsdale Power Reserve', 'Wandoan BESS', 'Torrens Island BESS', 'Broken Hill Solar Farm'];
             const statuses = ['unprocessed', 'processed'];
-            const statusNames = { unprocessed: '未处理', processed: '已处理' };
+            const statusNames = {
+                unprocessed: t('faultAlarm.statuses.unprocessed', 'Unprocessed'),
+                processed: t('faultAlarm.statuses.processed', 'Processed')
+            };
 
             const alarms = [];
             const now = new Date();
@@ -36,7 +50,7 @@
                     device: devices[i % devices.length],
                     station: stations[i % stations.length],
                     status: 'unprocessed',
-                    statusName: '未处理',
+                    statusName: statusNames['unprocessed'],
                     recoveryTime: null,
                     selected: false
                 });
@@ -63,7 +77,7 @@
                     device: devices[deviceIndex],
                     station: stations[stationIndex],
                     status: 'processed',
-                    statusName: '已处理',
+                    statusName: statusNames['processed'],
                     recoveryTime: recoveryTime,
                     selected: false
                 });
@@ -204,27 +218,31 @@
         function formatAlarmTime(date, timezone) {
             if (!date) return '--';
             const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = String(date.getSeconds()).padStart(2, '0');
             const tz = timezone || 'UTC+10:00';
-            return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}(${tz})`;
+            const lang = (window.i18n && window.i18n.currentLanguage) || 'en';
+            if (lang === 'zh') {
+                return `${year}年${parseInt(month)}月${parseInt(day)}日 ${hours}:${minutes}:${seconds}(${tz})`;
+            }
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} (${tz})`;
         }
 
         function getLevelHTML(level) {
             const dotClass = level === 'alarm' ? 'warning' : 'danger';
             const i18nKey = `faultAlarm.levels.${level}`;
-            const defaultNames = { alarm: '告警', fault: '故障' };
+            const defaultNames = { alarm: 'Alarm', fault: 'Fault' };
             const name = (window.i18n && window.i18n.getText(i18nKey) !== i18nKey) ? window.i18n.getText(i18nKey) : defaultNames[level];
             return `<span class="alarm-level"><span class="alarm-level-dot ${dotClass}"></span>${name}</span>`;
         }
 
         function getStatusHTML(status) {
             const dotClass = status === 'unprocessed' ? 'unprocessed' : 'processed';
-            const i18nKey = `faultAlarm.status.${status}`;
-            const defaultNames = { unprocessed: '未处理', processed: '已处理' };
+            const i18nKey = `faultAlarm.statuses.${status}`;
+            const defaultNames = { unprocessed: 'Unprocessed', processed: 'Processed' };
             const name = (window.i18n && window.i18n.getText(i18nKey) !== i18nKey) ? window.i18n.getText(i18nKey) : defaultNames[status];
             return `<span class="alarm-status"><span class="alarm-status-dot ${dotClass}"></span>${name}</span>`;
         }
@@ -333,31 +351,31 @@
             // Build detail HTML
             const detailHTML = `
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmTime', '告警时间')}</div>
+                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmTime', 'Alarm Time')}</div>
                     <div class="detail-item-value">${formatAlarmTime(alarm.time, alarm.timezone)}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmStation', '告警站点')}</div>
+                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmStation', 'Alarm Station')}</div>
                     <div class="detail-item-value">${alarm.station}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmDevice', '告警设备')}</div>
+                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmDevice', 'Alarm Device')}</div>
                     <div class="detail-item-value">${alarm.device}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.description', '告警描述')}</div>
+                    <div class="detail-item-label">${getText('faultAlarm.detail.description', 'Description')}</div>
                     <div class="detail-item-value description">${alarm.description}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmLevel', '告警等级')}</div>
+                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmLevel', 'Alarm Level')}</div>
                     <div class="detail-item-value">${getLevelHTML(alarm.level)}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmStatus', '告警状态')}</div>
+                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmStatus', 'Alarm Status')}</div>
                     <div class="detail-item-value">${getStatusHTML(alarm.status)}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.recoveryTime', '解决时间')}</div>
+                    <div class="detail-item-label">${getText('faultAlarm.detail.recoveryTime', 'Recovery Time')}</div>
                     <div class="detail-item-value">${alarm.recoveryTime ? formatAlarmTime(alarm.recoveryTime) : '--'}</div>
                 </div>
             `;
@@ -386,8 +404,8 @@
             };
 
             // Confirmation dialog
-            const confirmMessage = getText('faultAlarm.confirm.resolve', '确认将此告警标记为已处理？');
-            const confirmTitle = getText('faultAlarm.confirm.title', '确认操作');
+            const confirmMessage = getText('faultAlarm.confirm.resolve', 'Confirm marking this alarm as processed?');
+            const confirmTitle = getText('faultAlarm.confirm.title', 'Confirm');
             const confirmed = await showConfirmDialog(confirmMessage, confirmTitle);
 
             if (!confirmed) {
@@ -397,7 +415,7 @@
             const alarm = allAlarms.find(a => a.id === alarmId);
             if (alarm) {
                 alarm.status = 'processed';
-                alarm.statusName = '已处理';
+                alarm.statusName = getTranslatedStatus('processed');
                 alarm.recoveryTime = new Date();
 
                 // Close drawer
@@ -416,7 +434,14 @@
         }
 
         // ==================== Confirm Dialog ====================
-        function showConfirmDialog(message, title = '确认操作') {
+        // Helper to get translated status name
+        function getTranslatedStatus(status) {
+            const defaults = { unprocessed: 'Unprocessed', processed: 'Processed' };
+            return (window.i18n && window.i18n.getText(`faultAlarm.statuses.${status}`) !== `faultAlarm.statuses.${status}`)
+                ? window.i18n.getText(`faultAlarm.statuses.${status}`) : defaults[status];
+        }
+
+        function showConfirmDialog(message, title = 'Confirm') {
             return new Promise((resolve) => {
                 const overlay = document.getElementById('confirmOverlay');
                 const titleEl = document.getElementById('confirmTitle');
@@ -434,8 +459,8 @@
                 messageEl.textContent = message;
 
                 // Update button texts with i18n
-                cancelBtn.textContent = getText('faultAlarm.confirm.cancel', '取消');
-                confirmBtn.textContent = getText('faultAlarm.confirm.confirm', '确认');
+                cancelBtn.textContent = getText('faultAlarm.confirm.cancel', 'Cancel');
+                confirmBtn.textContent = getText('faultAlarm.confirm.confirm', 'Confirm');
 
                 // Show overlay
                 overlay.classList.add('active');
@@ -492,12 +517,12 @@
             let confirmMessage;
             if (selected.length === 0) {
                 const unprocessedCount = filteredAlarms.filter(a => a.status === 'unprocessed').length;
-                confirmMessage = getText('faultAlarm.confirm.batchProcessAll', `确认一键处理所有 ${unprocessedCount} 条未处理告警？`).replace('${count}', unprocessedCount);
+                confirmMessage = getText('faultAlarm.confirm.batchProcessAll', `Confirm batch processing all ${unprocessedCount} unprocessed alarms?`).replace('${count}', unprocessedCount);
             } else {
-                confirmMessage = getText('faultAlarm.confirm.batchProcessSelected', `确认一键处理选中的 ${selected.length} 条告警？`).replace('${count}', selected.length);
+                confirmMessage = getText('faultAlarm.confirm.batchProcessSelected', `Confirm batch processing ${selected.length} selected alarms?`).replace('${count}', selected.length);
             }
 
-            const confirmTitle = getText('faultAlarm.confirm.title', '确认操作');
+            const confirmTitle = getText('faultAlarm.confirm.title', 'Confirm');
             const confirmed = await showConfirmDialog(confirmMessage, confirmTitle);
 
             if (!confirmed) {
@@ -509,14 +534,14 @@
                 filteredAlarms.forEach(a => {
                     if (a.status === 'unprocessed') {
                         a.status = 'processed';
-                        a.statusName = '已处理';
+                        a.statusName = getTranslatedStatus('processed');
                         a.recoveryTime = new Date();
                     }
                 });
             } else {
                 selected.forEach(a => {
                     a.status = 'processed';
-                    a.statusName = '已处理';
+                    a.statusName = getTranslatedStatus('processed');
                     a.recoveryTime = new Date();
                     a.selected = false;
                 });
@@ -530,7 +555,7 @@
             const selected = getSelectedAlarms();
             selected.forEach(a => {
                 a.status = 'processed';
-                a.statusName = '已处理';
+                a.statusName = getTranslatedStatus('processed');
                 a.selected = false;
             });
             applyFilters();
@@ -542,7 +567,7 @@
             const selected = getSelectedAlarms();
             selected.forEach(a => {
                 a.status = 'unprocessed';
-                a.statusName = '未处理';
+                a.statusName = getTranslatedStatus('unprocessed');
                 a.selected = false;
             });
             applyFilters();
@@ -552,7 +577,18 @@
 
         function exportAlarms() {
             // Generate CSV from filtered data
-            const headers = ['告警时间', '描述', '告警等级', '告警设备', '告警站点', '告警状态', '恢复时间'];
+            const getText = (key, defaultText) => {
+                return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : defaultText;
+            };
+            const headers = [
+                getText('faultAlarm.table.alarmTime', 'Alarm Time'),
+                getText('faultAlarm.table.description', 'Description'),
+                getText('faultAlarm.table.alarmLevel', 'Alarm Level'),
+                getText('faultAlarm.table.alarmDevice', 'Alarm Device'),
+                getText('faultAlarm.table.alarmStation', 'Alarm Station'),
+                getText('faultAlarm.table.alarmStatus', 'Alarm Status'),
+                getText('faultAlarm.table.recoveryTime', 'Recovery Time')
+            ];
             const rows = filteredAlarms.map(a => [
                 formatAlarmTime(a.time, a.timezone),
                 a.description,

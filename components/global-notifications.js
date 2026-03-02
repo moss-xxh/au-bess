@@ -311,7 +311,7 @@
         const iconElement = notification.querySelector('.notification-icon');
         
         if (titleText && contentText && iconElement) {
-            const currentLang = (window.i18n && window.i18n.currentLanguage) || 'zh';
+            const currentLang = (window.i18n && window.i18n.currentLanguage) || 'en';
             const config = notificationConfigs[type];
             
             if (config) {
@@ -539,7 +539,7 @@
                     
                     // 同时尝试手动更新
                     if (window.i18n) {
-                        const currentLang = window.i18n.currentLanguage || 'zh';
+                        const currentLang = window.i18n.currentLanguage || 'en';
                         
                         // 使用正确的翻译
                         const translations = {
@@ -641,9 +641,9 @@
         }
         
         // 定期检查语言变化
-        let lastLang = (window.i18n && window.i18n.currentLanguage) || 'zh';
+        let lastLang = (window.i18n && window.i18n.currentLanguage) || 'en';
         setInterval(() => {
-            const currentLang = (window.i18n && window.i18n.currentLanguage) || 'zh';
+            const currentLang = (window.i18n && window.i18n.currentLanguage) || 'en';
             if (currentLang !== lastLang) {
                 lastLang = currentLang;
                 // 更新所有弹窗内容
