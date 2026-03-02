@@ -1,4 +1,3 @@
-
         // ==================== Data ====================
         let allAlarms = [];
         let filteredAlarms = [];
@@ -8,29 +7,61 @@
         let sortField = 'time';
         let sortOrder = 'desc';
 
+        // ==================== i18n Helper ====================
+        function t(key, fallback) {
+            return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : fallback;
+        }
+
+        function getCurrentLang() {
+            return (window.i18n && window.i18n.currentLanguage) || 'en';
+        }
+
+        // ==================== Role Helper ====================
+        function getCurrentUserRole() {
+            return localStorage.getItem('userRole') || 'operator';
+        }
+
+        function isOwner() {
+            return getCurrentUserRole() === 'owner';
+        }
+
+        function isOperator() {
+            return getCurrentUserRole() === 'operator';
+        }
+
+        // ==================== Description Keys & Translations ====================
+        const DESCRIPTION_KEYS = ['highVoltage', 'lowInsulation', 'cellVoltageDiff', 'cellVoltageHigh', 'overTemperature', 'lowSOC', 'commInterrupt', 'overCurrent'];
+        const DESCRIPTION_FALLBACKS = {
+            highVoltage: 'High Voltage',
+            lowInsulation: 'Low Insulation',
+            cellVoltageDiff: 'Cell Voltage Diff',
+            cellVoltageHigh: 'Cell Voltage High',
+            overTemperature: 'Over Temperature',
+            lowSOC: 'Low SOC',
+            commInterrupt: 'Comm Interrupt',
+            overCurrent: 'Over Current'
+        };
+
+        function getDescriptionText(descKey) {
+            return t(`faultAlarm.descriptions.${descKey}`, DESCRIPTION_FALLBACKS[descKey] || descKey);
+        }
+
+        function getLevelText(level) {
+            const defaults = { alarm: 'Alarm', fault: 'Fault' };
+            return t(`faultAlarm.levels.${level}`, defaults[level] || level);
+        }
+
+        function getStatusText(status) {
+            const defaults = { unprocessed: 'Unprocessed', processed: 'Processed' };
+            return t(`faultAlarm.statuses.${status}`, defaults[status] || status);
+        }
+
         // Mock alarm data — dynamically generated relative to current date
+        // Stores keys instead of translated strings for proper i18n support
         function generateMockAlarms() {
-            // i18n helper
-            const t = (key, fallback) => {
-                return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : fallback;
-            };
-
-            const descriptionKeys = ['highVoltage', 'lowInsulation', 'cellVoltageDiff', 'cellVoltageHigh', 'overTemperature', 'lowSOC', 'commInterrupt', 'overCurrent'];
-            const descriptionFallbacks = ['High Voltage', 'Low Insulation', 'Cell Voltage Diff', 'Cell Voltage High', 'Over Temperature', 'Low SOC', 'Comm Interrupt', 'Over Current'];
-            const descriptions = descriptionKeys.map((key, idx) => t(`faultAlarm.descriptions.${key}`, descriptionFallbacks[idx]));
-
             const levels = ['alarm', 'fault'];
-            const levelNames = {
-                alarm: t('faultAlarm.levels.alarm', 'Alarm'),
-                fault: t('faultAlarm.levels.fault', 'Fault')
-            };
             const devices = ['BMS', 'PCS', 'EMS', 'METER'];
             const stations = ['Hornsdale Power Reserve', 'Wandoan BESS', 'Torrens Island BESS', 'Broken Hill Solar Farm'];
-            const statuses = ['unprocessed', 'processed'];
-            const statusNames = {
-                unprocessed: t('faultAlarm.statuses.unprocessed', 'Unprocessed'),
-                processed: t('faultAlarm.statuses.processed', 'Processed')
-            };
 
             const alarms = [];
             const now = new Date();
@@ -44,13 +75,11 @@
                     id: idCounter++,
                     time: alarmTime,
                     timezone: 'AEST',
-                    description: descriptions[i % descriptions.length],
+                    descriptionKey: DESCRIPTION_KEYS[i % DESCRIPTION_KEYS.length],
                     level: levels[i % 2],
-                    levelName: levelNames[levels[i % 2]],
                     device: devices[i % devices.length],
                     station: stations[i % stations.length],
                     status: 'unprocessed',
-                    statusName: statusNames['unprocessed'],
                     recoveryTime: null,
                     selected: false
                 });
@@ -62,7 +91,7 @@
                 const hoursOffset = (i % 5) * 3 + Math.floor(Math.random() * 3);
                 const alarmTime = new Date(now.getTime() - daysAgo * 86400000 - hoursOffset * 3600000);
                 const recoveryTime = new Date(alarmTime.getTime() + (30 + Math.random() * 90) * 60000);
-                const descIndex = i % descriptions.length;
+                const descIndex = i % DESCRIPTION_KEYS.length;
                 const levelIndex = i % 2;
                 const deviceIndex = i % devices.length;
                 const stationIndex = i % stations.length;
@@ -71,13 +100,11 @@
                     id: idCounter++,
                     time: alarmTime,
                     timezone: 'AEST',
-                    description: descriptions[descIndex],
+                    descriptionKey: DESCRIPTION_KEYS[descIndex],
                     level: levels[levelIndex],
-                    levelName: levelNames[levels[levelIndex]],
                     device: devices[deviceIndex],
                     station: stations[stationIndex],
                     status: 'processed',
-                    statusName: statusNames['processed'],
                     recoveryTime: recoveryTime,
                     selected: false
                 });
@@ -182,15 +209,24 @@
             const btnMarkProcessed = document.getElementById('btnMarkProcessed');
             const btnMarkUnprocessed = document.getElementById('btnMarkUnprocessed');
 
+            // Owner can only view - hide all action buttons
+            if (isOwner()) {
+                selectAllWrapper.style.display = 'none';
+                btnBatchProcess.style.display = 'none';
+                btnExport.style.display = 'none';
+                btnMarkProcessed.style.display = 'none';
+                btnMarkUnprocessed.style.display = 'none';
+                return;
+            }
+
+            // Operator has full access
             if (currentTab === 'unprocessed') {
-                // 未处理：显示"全选"、"一键处理"和"导出"
                 selectAllWrapper.style.display = 'flex';
                 btnBatchProcess.style.display = 'block';
                 btnExport.style.display = 'block';
                 btnMarkProcessed.style.display = 'none';
                 btnMarkUnprocessed.style.display = 'none';
             } else if (currentTab === 'processed') {
-                // 已处理：显示"全选"和"导出"
                 selectAllWrapper.style.display = 'flex';
                 btnBatchProcess.style.display = 'none';
                 btnExport.style.display = 'block';
@@ -224,7 +260,7 @@
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = String(date.getSeconds()).padStart(2, '0');
             const tz = timezone || 'UTC+10:00';
-            const lang = (window.i18n && window.i18n.currentLanguage) || 'en';
+            const lang = getCurrentLang();
             if (lang === 'zh') {
                 return `${year}年${parseInt(month)}月${parseInt(day)}日 ${hours}:${minutes}:${seconds}(${tz})`;
             }
@@ -233,17 +269,13 @@
 
         function getLevelHTML(level) {
             const dotClass = level === 'alarm' ? 'warning' : 'danger';
-            const i18nKey = `faultAlarm.levels.${level}`;
-            const defaultNames = { alarm: 'Alarm', fault: 'Fault' };
-            const name = (window.i18n && window.i18n.getText(i18nKey) !== i18nKey) ? window.i18n.getText(i18nKey) : defaultNames[level];
+            const name = getLevelText(level);
             return `<span class="alarm-level"><span class="alarm-level-dot ${dotClass}"></span>${name}</span>`;
         }
 
         function getStatusHTML(status) {
             const dotClass = status === 'unprocessed' ? 'unprocessed' : 'processed';
-            const i18nKey = `faultAlarm.statuses.${status}`;
-            const defaultNames = { unprocessed: 'Unprocessed', processed: 'Processed' };
-            const name = (window.i18n && window.i18n.getText(i18nKey) !== i18nKey) ? window.i18n.getText(i18nKey) : defaultNames[status];
+            const name = getStatusText(status);
             return `<span class="alarm-status"><span class="alarm-status-dot ${dotClass}"></span>${name}</span>`;
         }
 
@@ -255,36 +287,50 @@
             const endIndex = Math.min(startIndex + pageSize, filteredAlarms.length);
             const pageData = filteredAlarms.slice(startIndex, endIndex);
 
+            // Check role for action column rendering
+            const userIsOperator = isOperator();
+
             if (pageData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="10" style="text-align: center; padding: 60px 20px; color: var(--color-text-secondary);">
                             <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.4;">📭</div>
-                            <div data-i18n="faultAlarm.noData">暂无数据</div>
+                            <div data-i18n="faultAlarm.noData">${t('faultAlarm.noData', 'No Data')}</div>
                         </td>
                     </tr>
                 `;
             } else {
-                tbody.innerHTML = pageData.map(alarm => `
+                tbody.innerHTML = pageData.map(alarm => {
+                    // Build action buttons based on role
+                    let actionButtons = '';
+                    if (userIsOperator && alarm.status === 'unprocessed') {
+                        actionButtons += `<button class="btn-resolve-inline" onclick="resolveAlarmFromDetail(${alarm.id})" data-i18n="faultAlarm.buttons.resolve">${t('faultAlarm.buttons.resolve', 'Resolve')}</button>`;
+                    }
+                    actionButtons += `<button class="btn-detail" onclick="showAlarmDetail(${alarm.id})" data-i18n="faultAlarm.buttons.detail">${t('faultAlarm.buttons.detail', 'Detail')}</button>`;
+
+                    // Checkbox column: only show for operator
+                    const checkboxCol = userIsOperator
+                        ? `<td class="checkbox-col"><input type="checkbox" ${alarm.selected ? 'checked' : ''} onchange="toggleSelect(${alarm.id}, this.checked)"></td>`
+                        : `<td class="checkbox-col"></td>`;
+
+                    return `
                     <tr>
-                        <td class="checkbox-col">
-                            <input type="checkbox" ${alarm.selected ? 'checked' : ''} onchange="toggleSelect(${alarm.id}, this.checked)">
-                        </td>
+                        ${checkboxCol}
                         <td>${formatAlarmTime(alarm.time, alarm.timezone)}</td>
                         <td>${alarm.station}</td>
                         <td>${alarm.device}</td>
-                        <td>${alarm.description}</td>
+                        <td>${getDescriptionText(alarm.descriptionKey)}</td>
                         <td>${getLevelHTML(alarm.level)}</td>
                         <td>${getStatusHTML(alarm.status)}</td>
                         <td>${alarm.recoveryTime ? formatAlarmTime(alarm.recoveryTime) : '--'}</td>
                         <td>
                             <div class="action-btns-container">
-                                ${(alarm.status === 'unprocessed' && (localStorage.getItem('userRole') || 'operator') === 'owner') ? '<button class="btn-resolve-inline" onclick="resolveAlarmFromDetail(' + alarm.id + ')" data-i18n="faultAlarm.buttons.resolve">处理</button>' : ''}
-                                <button class="btn-detail" onclick="showAlarmDetail(${alarm.id})" data-i18n="faultAlarm.buttons.detail">详情</button>
+                                ${actionButtons}
                             </div>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
             }
 
             updatePagination();
@@ -293,7 +339,6 @@
 
         // ==================== Selection ====================
         function selectAllCurrentPage(checked) {
-            // 全选复选框：选中/取消所有页面的数据
             filteredAlarms.forEach(alarm => {
                 alarm.selected = checked;
             });
@@ -302,7 +347,6 @@
         }
 
         function toggleSelectAll(checkbox) {
-            // 表头复选框：仅选中当前页
             const startIndex = (currentPage - 1) * pageSize;
             const endIndex = Math.min(startIndex + pageSize, filteredAlarms.length);
             for (let i = startIndex; i < endIndex; i++) {
@@ -314,13 +358,10 @@
         function toggleSelect(id, checked) {
             const alarm = allAlarms.find(a => a.id === id);
             if (alarm) alarm.selected = checked;
-
-            // Update select-all checkbox (只反映当前页状态)
             updateSelectAllCheckbox();
         }
 
         function updateSelectAllCheckbox() {
-            // 更新表头的当前页全选复选框
             const startIndex = (currentPage - 1) * pageSize;
             const endIndex = Math.min(startIndex + pageSize, filteredAlarms.length);
             const pageData = filteredAlarms.slice(startIndex, endIndex);
@@ -330,7 +371,6 @@
                 selectAllCheckbox.checked = allPageSelected;
             }
 
-            // 更新操作栏的全选复选框（所有页）
             const allAlarmsSelected = filteredAlarms.length > 0 && filteredAlarms.every(a => a.selected);
             const selectAllBtn = document.getElementById('selectAllBtn');
             if (selectAllBtn) {
@@ -343,50 +383,44 @@
             const alarm = allAlarms.find(a => a.id === alarmId);
             if (!alarm) return;
 
-            // Get i18n texts
-            const getText = (key, defaultText) => {
-                return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : defaultText;
-            };
-
-            // Build detail HTML
+            // Build detail HTML - translate at render time
             const detailHTML = `
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmTime', 'Alarm Time')}</div>
+                    <div class="detail-item-label">${t('faultAlarm.detail.alarmTime', 'Alarm Time')}</div>
                     <div class="detail-item-value">${formatAlarmTime(alarm.time, alarm.timezone)}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmStation', 'Alarm Station')}</div>
+                    <div class="detail-item-label">${t('faultAlarm.detail.alarmStation', 'Alarm Station')}</div>
                     <div class="detail-item-value">${alarm.station}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmDevice', 'Alarm Device')}</div>
+                    <div class="detail-item-label">${t('faultAlarm.detail.alarmDevice', 'Alarm Device')}</div>
                     <div class="detail-item-value">${alarm.device}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.description', 'Description')}</div>
-                    <div class="detail-item-value description">${alarm.description}</div>
+                    <div class="detail-item-label">${t('faultAlarm.detail.description', 'Description')}</div>
+                    <div class="detail-item-value description">${getDescriptionText(alarm.descriptionKey)}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmLevel', 'Alarm Level')}</div>
+                    <div class="detail-item-label">${t('faultAlarm.detail.alarmLevel', 'Alarm Level')}</div>
                     <div class="detail-item-value">${getLevelHTML(alarm.level)}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.alarmStatus', 'Alarm Status')}</div>
+                    <div class="detail-item-label">${t('faultAlarm.detail.alarmStatus', 'Alarm Status')}</div>
                     <div class="detail-item-value">${getStatusHTML(alarm.status)}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-item-label">${getText('faultAlarm.detail.recoveryTime', 'Recovery Time')}</div>
+                    <div class="detail-item-label">${t('faultAlarm.detail.recoveryTime', 'Recovery Time')}</div>
                     <div class="detail-item-value">${alarm.recoveryTime ? formatAlarmTime(alarm.recoveryTime) : '--'}</div>
                 </div>
             `;
 
-            // Fill drawer body
             document.getElementById('detailDrawerBody').innerHTML = detailHTML;
 
-            // Update footer based on alarm status
+            // Footer: only operator can resolve unprocessed alarms
             const footer = document.getElementById('detailDrawerFooter');
-            if (alarm.status === 'unprocessed' && (localStorage.getItem('userRole') || 'operator') === 'owner') {
-                footer.innerHTML = `<button class="btn-resolve" onclick="resolveAlarmFromDetail(${alarm.id})" data-i18n="faultAlarm.buttons.resolve">处理</button>`;
+            if (alarm.status === 'unprocessed' && isOperator()) {
+                footer.innerHTML = `<button class="btn-resolve" onclick="resolveAlarmFromDetail(${alarm.id})" data-i18n="faultAlarm.buttons.resolve">${t('faultAlarm.buttons.resolve', 'Resolve')}</button>`;
                 footer.style.display = 'flex';
             } else {
                 footer.style.display = 'none';
@@ -398,14 +432,8 @@
         }
 
         async function resolveAlarmFromDetail(alarmId) {
-            // Get i18n text
-            const getText = (key, defaultText) => {
-                return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : defaultText;
-            };
-
-            // Confirmation dialog
-            const confirmMessage = getText('faultAlarm.confirm.resolve', 'Confirm marking this alarm as processed?');
-            const confirmTitle = getText('faultAlarm.confirm.title', 'Confirm');
+            const confirmMessage = t('faultAlarm.confirm.resolve', 'Confirm marking this alarm as processed?');
+            const confirmTitle = t('faultAlarm.confirm.title', 'Confirm');
             const confirmed = await showConfirmDialog(confirmMessage, confirmTitle);
 
             if (!confirmed) {
@@ -415,7 +443,6 @@
             const alarm = allAlarms.find(a => a.id === alarmId);
             if (alarm) {
                 alarm.status = 'processed';
-                alarm.statusName = getTranslatedStatus('processed');
                 alarm.recoveryTime = new Date();
 
                 // Close drawer
@@ -434,13 +461,6 @@
         }
 
         // ==================== Confirm Dialog ====================
-        // Helper to get translated status name
-        function getTranslatedStatus(status) {
-            const defaults = { unprocessed: 'Unprocessed', processed: 'Processed' };
-            return (window.i18n && window.i18n.getText(`faultAlarm.statuses.${status}`) !== `faultAlarm.statuses.${status}`)
-                ? window.i18n.getText(`faultAlarm.statuses.${status}`) : defaults[status];
-        }
-
         function showConfirmDialog(message, title = 'Confirm') {
             return new Promise((resolve) => {
                 const overlay = document.getElementById('confirmOverlay');
@@ -449,18 +469,13 @@
                 const cancelBtn = document.getElementById('confirmCancelBtn');
                 const confirmBtn = document.getElementById('confirmConfirmBtn');
 
-                // Get i18n text
-                const getText = (key, defaultText) => {
-                    return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : defaultText;
-                };
-
                 // Set content
                 titleEl.textContent = title;
                 messageEl.textContent = message;
 
                 // Update button texts with i18n
-                cancelBtn.textContent = getText('faultAlarm.confirm.cancel', 'Cancel');
-                confirmBtn.textContent = getText('faultAlarm.confirm.confirm', 'Confirm');
+                cancelBtn.textContent = t('faultAlarm.confirm.cancel', 'Cancel');
+                confirmBtn.textContent = t('faultAlarm.confirm.confirm', 'Confirm');
 
                 // Show overlay
                 overlay.classList.add('active');
@@ -506,23 +521,17 @@
         }
 
         async function batchProcess() {
-            // Get i18n text
-            const getText = (key, defaultText) => {
-                return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : defaultText;
-            };
-
             const selected = getSelectedAlarms();
 
-            // Confirmation dialog with different messages based on selection
             let confirmMessage;
             if (selected.length === 0) {
                 const unprocessedCount = filteredAlarms.filter(a => a.status === 'unprocessed').length;
-                confirmMessage = getText('faultAlarm.confirm.batchProcessAll', `Confirm batch processing all ${unprocessedCount} unprocessed alarms?`).replace('${count}', unprocessedCount);
+                confirmMessage = t('faultAlarm.confirm.batchProcessAll', `Confirm batch processing all ${unprocessedCount} unprocessed alarms?`).replace('${count}', unprocessedCount);
             } else {
-                confirmMessage = getText('faultAlarm.confirm.batchProcessSelected', `Confirm batch processing ${selected.length} selected alarms?`).replace('${count}', selected.length);
+                confirmMessage = t('faultAlarm.confirm.batchProcessSelected', `Confirm batch processing ${selected.length} selected alarms?`).replace('${count}', selected.length);
             }
 
-            const confirmTitle = getText('faultAlarm.confirm.title', 'Confirm');
+            const confirmTitle = t('faultAlarm.confirm.title', 'Confirm');
             const confirmed = await showConfirmDialog(confirmMessage, confirmTitle);
 
             if (!confirmed) {
@@ -534,14 +543,12 @@
                 filteredAlarms.forEach(a => {
                     if (a.status === 'unprocessed') {
                         a.status = 'processed';
-                        a.statusName = getTranslatedStatus('processed');
                         a.recoveryTime = new Date();
                     }
                 });
             } else {
                 selected.forEach(a => {
                     a.status = 'processed';
-                    a.statusName = getTranslatedStatus('processed');
                     a.recoveryTime = new Date();
                     a.selected = false;
                 });
@@ -555,7 +562,6 @@
             const selected = getSelectedAlarms();
             selected.forEach(a => {
                 a.status = 'processed';
-                a.statusName = getTranslatedStatus('processed');
                 a.selected = false;
             });
             applyFilters();
@@ -567,7 +573,6 @@
             const selected = getSelectedAlarms();
             selected.forEach(a => {
                 a.status = 'unprocessed';
-                a.statusName = getTranslatedStatus('unprocessed');
                 a.selected = false;
             });
             applyFilters();
@@ -576,26 +581,22 @@
         }
 
         function exportAlarms() {
-            // Generate CSV from filtered data
-            const getText = (key, defaultText) => {
-                return (window.i18n && window.i18n.getText(key) !== key) ? window.i18n.getText(key) : defaultText;
-            };
             const headers = [
-                getText('faultAlarm.table.alarmTime', 'Alarm Time'),
-                getText('faultAlarm.table.description', 'Description'),
-                getText('faultAlarm.table.alarmLevel', 'Alarm Level'),
-                getText('faultAlarm.table.alarmDevice', 'Alarm Device'),
-                getText('faultAlarm.table.alarmStation', 'Alarm Station'),
-                getText('faultAlarm.table.alarmStatus', 'Alarm Status'),
-                getText('faultAlarm.table.recoveryTime', 'Recovery Time')
+                t('faultAlarm.table.alarmTime', 'Alarm Time'),
+                t('faultAlarm.table.description', 'Description'),
+                t('faultAlarm.table.alarmLevel', 'Alarm Level'),
+                t('faultAlarm.table.alarmDevice', 'Alarm Device'),
+                t('faultAlarm.table.alarmStation', 'Alarm Station'),
+                t('faultAlarm.table.alarmStatus', 'Alarm Status'),
+                t('faultAlarm.table.recoveryTime', 'Recovery Time')
             ];
             const rows = filteredAlarms.map(a => [
                 formatAlarmTime(a.time, a.timezone),
-                a.description,
-                a.levelName,
+                getDescriptionText(a.descriptionKey),
+                getLevelText(a.level),
                 a.device,
                 a.station,
-                a.statusName,
+                getStatusText(a.status),
                 a.recoveryTime ? formatAlarmTime(a.recoveryTime) : '--'
             ]);
 
@@ -669,6 +670,14 @@
             applyFilters();
             renderTable();
             updateCounts();
+
+            // Hide table header checkbox for owner
+            if (isOwner()) {
+                const selectAllCheckbox = document.getElementById('selectAll');
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.style.display = 'none';
+                }
+            }
         }
 
         // ==================== DOMContentLoaded ====================
@@ -679,8 +688,8 @@
                 containerId: 'headerContainer'
             });
 
-            // 角色权限：运维方隐藏处理按钮 + 数据过滤（必须在 initPage 前）
-            const _role = localStorage.getItem('userRole') || 'operator';
+            // 角色权限：运维方数据过滤（必须在 initPage 前）
+            const _role = getCurrentUserRole();
             if (_role === 'operator') {
                 const operatorStations = ['Hornsdale Power Reserve', 'Wandoan BESS'];
                 window._operatorStationFilter = operatorStations;
@@ -689,20 +698,12 @@
             // Initialize page
             initPage();
 
-            // 运维方：隐藏处理按钮
-            if (_role === 'operator') {
-                ['btnBatchProcess', 'btnMarkProcessed', 'btnMarkUnprocessed'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.style.display = 'none';
-                });
-                document.querySelectorAll('.btn-resolve-inline, .btn-resolve').forEach(el => el.style.display = 'none');
-            }
-
             // Update i18n texts
             setTimeout(() => {
                 if (window.i18n && window.i18n.updatePageTexts) {
                     window.i18n.updatePageTexts();
                 }
+                // Re-render table to pick up i18n translations
+                renderTable();
             }, 500);
         });
-    
