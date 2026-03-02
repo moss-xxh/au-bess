@@ -101,27 +101,6 @@ class I18n {
                     roleOwner: "业主",
                     roleOperator: "运维方"
                 },
-                roleSelect: {
-                    pageTitle: "角色选择 - U Energy",
-                    title: "选择您的角色",
-                    subtitle: "请选择登录角色以进入系统",
-                    ownerTitle: "业主",
-                    ownerSubtitle: "Property Owner",
-                    ownerDesc: "创建并管理电站，处理设备故障，分配运维方账号，全面掌控电站资产。",
-                    ownerF1: "创建电站与查看运行数据",
-                    ownerF2: "故障查看与处理",
-                    ownerF3: "创建运维方并分配电站",
-                    ownerBtn: "进入业主面板",
-                    operatorTitle: "运维方",
-                    operatorSubtitle: "O&M Provider",
-                    operatorDesc: "智能调度归属电站，查看电量收益报表，记录历史调度操作，高效运维管理。",
-                    operatorF1: "AI 智能调度",
-                    operatorF2: "查看归属站点运行数据",
-                    operatorF3: "电量收益报表",
-                    operatorF4: "历史调度记录",
-                    operatorBtn: "进入运维面板",
-                    logoutLink: "退出登录"
-                },
                 operatorMgmt: {
                     title: "运维管理",
                     buttons: {
@@ -891,6 +870,7 @@ class I18n {
                         title: "每日电站统计",
                         date: "日期",
                         station: "电站",
+                        dispatched: "有无调度",
                         chargeCount: "充电次数",
                         dischargeCount: "放电次数",
                         operationMode: "操作方式",
@@ -2728,27 +2708,6 @@ class I18n {
                     roleOperator: "Operator",
                 },
                 
-                roleSelect: {
-                    pageTitle: "Role Selection - U Energy",
-                    title: "Select Your Role",
-                    subtitle: "Choose your role to enter the system",
-                    ownerTitle: "Owner",
-                    ownerSubtitle: "Property Owner",
-                    ownerDesc: "Create and manage stations, handle faults, assign O&M accounts, and fully control your assets.",
-                    ownerF1: "Create stations & view data",
-                    ownerF2: "Fault detection & resolution",
-                    ownerF3: "Create operators & assign stations",
-                    ownerBtn: "Enter Owner Panel",
-                    operatorTitle: "Operator",
-                    operatorSubtitle: "O&M Provider",
-                    operatorDesc: "AI-powered dispatch for assigned stations, energy reports, and historical scheduling records.",
-                    operatorF1: "AI smart dispatch",
-                    operatorF2: "View assigned station data",
-                    operatorF3: "Energy & revenue reports",
-                    operatorF4: "Dispatch history records",
-                    operatorBtn: "Enter Operator Panel",
-                    logoutLink: "Sign Out"
-                },
                 // Running Data page translations
                 runningData: {
                     title: "Running Data",
@@ -3575,6 +3534,7 @@ class I18n {
                         title: "Daily Station Statistics",
                         date: "Date",
                         station: "Station",
+                        dispatched: "Dispatched",
                         chargeCount: "Charge Count",
                         dischargeCount: "Discharge Count",
                         operationMode: "Operation Mode",

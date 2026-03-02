@@ -327,33 +327,26 @@
 
             if (pageData.length === 0) {
                 const t = (k, f) => window.i18n ? window.i18n.getText(k) : f;
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:rgba(255,255,255,0.5);">${t('operationLog.noData', '暂无数据')}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:rgba(255,255,255,0.5);">${t('operationLog.noData', '暂无数据')}</td></tr>`;
                 return;
             }
 
             pageData.forEach(stat => {
                 const row = document.createElement('tr');
 
-                // Operation mode badge
-                let operationModeClass = '';
-                let operationModeText = getOperationModeText(stat.operationMode);
-
-                if (stat.operationMode === 'manual') {
-                    operationModeClass = 'background: rgba(88, 86, 214, 0.15); color: #5856d6; border: 1px solid rgba(88, 86, 214, 0.3);';
-                } else if (stat.operationMode === 'automated') {
-                    operationModeClass = 'background: rgba(0, 122, 255, 0.15); color: #007aff; border: 1px solid rgba(0, 122, 255, 0.3);';
-                } else {
-                    operationModeClass = 'background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3);';
-                }
-
                 const t = (k, f) => window.i18n ? window.i18n.getText(k) : f;
+
+                // Determine dispatched status: Y if chargeCount > 0 or dischargeCount > 0, otherwise N
+                const isDispatched = (stat.chargeCount > 0 || stat.dischargeCount > 0);
+                const dispatchedText = isDispatched ? 'Y' : 'N';
+                const dispatchedStyle = isDispatched
+                    ? 'color: #34c759; font-weight: 600;'
+                    : 'color: #ff3b30; font-weight: 600;';
 
                 row.innerHTML = `
                     <td style="white-space:nowrap; font-weight: 500;">${stat.date}</td>
                     <td>${stat.station}</td>
-                    <td style="text-align: center; color: #34c759; font-weight: 600;">${stat.chargeCount}</td>
-                    <td style="text-align: center; color: #FFD60A; font-weight: 600;">${stat.dischargeCount}</td>
-                    <td style="text-align: center;"><span class="status-badge" style="${operationModeClass}">${operationModeText}</span></td>
+                    <td style="text-align: center; ${dispatchedStyle}">${dispatchedText}</td>
                     <td>
                         <a href="#" class="action-link" style="color: #00ff88;" onclick="viewStationDailyDetails('${stat.date}', '${stat.station}', '${stat.operationMode}'); return false;">${t('operationLog.buttons.viewDetails', '详情')}</a>
                     </td>
@@ -384,8 +377,14 @@
 
             // Sort the data
             dailyStatsData.sort((a, b) => {
-                let valA = a[column];
-                let valB = b[column];
+                let valA, valB;
+                if (column === 'dispatched') {
+                    valA = (a.chargeCount > 0 || a.dischargeCount > 0) ? 'Y' : 'N';
+                    valB = (b.chargeCount > 0 || b.dischargeCount > 0) ? 'Y' : 'N';
+                } else {
+                    valA = a[column];
+                    valB = b[column];
+                }
 
                 // Handle different data types
                 if (typeof valA === 'string') {
@@ -411,7 +410,7 @@
 
         function updateSortIndicators() {
             // Clear all sort indicators
-            const columns = ['date', 'station', 'capacity', 'chargeCount', 'dischargeCount', 'operationMode'];
+            const columns = ['date', 'station', 'dispatched'];
             columns.forEach(col => {
                 const indicator = document.getElementById(`sort-${col}`);
                 if (indicator) {
@@ -485,18 +484,12 @@
             const headers = [
                 t('operationLog.dailyStats.date', '日期'),
                 t('operationLog.dailyStats.station', '电站'),
-                t('operationLog.dailyStats.capacity', '装机容量'),
-                t('operationLog.dailyStats.chargeCount', '充电次数'),
-                t('operationLog.dailyStats.dischargeCount', '放电次数'),
-                t('operationLog.dailyStats.operationMode', '操作方式')
+                t('operationLog.dailyStats.dispatched', '有无调度')
             ];
             const rows = dailyStatsData.map(stat => [
                 stat.date,
                 stat.station,
-                stat.capacity,
-                stat.chargeCount,
-                stat.dischargeCount,
-                getOperationModeText(stat.operationMode)
+                (stat.chargeCount > 0 || stat.dischargeCount > 0) ? 'Y' : 'N'
             ]);
             let csv = headers.join(',') + '\n';
             rows.forEach(row => { csv += row.map(item => `"${item}"`).join(',') + '\n'; });
