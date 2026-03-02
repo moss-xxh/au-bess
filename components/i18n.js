@@ -773,6 +773,16 @@ class I18n {
                 // Operation Log translations
                 operationLog: {
                     title: "操作记录",
+                    filters: {
+                        station: "电站",
+                        allStations: "全部电站",
+                        startTime: "开始时间",
+                        endTime: "结束时间",
+                        dispatched: "有无调度",
+                        all: "全部",
+                        yes: "是(Y)",
+                        no: "否(N)"
+                    },
                     tabs: {
                         task: "任务记录",
                         operation: "操作记录",
@@ -3473,6 +3483,16 @@ class I18n {
                 // Operation Log translations
                 operationLog: {
                     title: "Operation Log",
+                    filters: {
+                        station: "Station",
+                        allStations: "All Stations",
+                        startTime: "Start Time",
+                        endTime: "End Time",
+                        dispatched: "Dispatched",
+                        all: "All",
+                        yes: "Yes(Y)",
+                        no: "No(N)"
+                    },
                     tabs: {
                         task: "Task Records",
                         operation: "Operation Records",
@@ -5493,6 +5513,16 @@ class I18n {
                 // 操作ログページ
                 operationLog: {
                     title: '操作ログ',
+                    filters: {
+                        station: 'ステーション',
+                        allStations: '全ステーション',
+                        startTime: '開始時間',
+                        endTime: '終了時間',
+                        dispatched: 'ディスパッチ',
+                        all: '全て',
+                        yes: 'はい(Y)',
+                        no: 'いいえ(N)'
+                    },
                     operator: 'オペレーター',
                     selectTime: '時間選択',
                     operationCommand: '操作コマンド',
@@ -5713,6 +5743,16 @@ class I18n {
                 // 작업 로그 페이지
                 operationLog: {
                     title: '작업 로그',
+                    filters: {
+                        station: '발전소',
+                        allStations: '전체 발전소',
+                        startTime: '시작 시간',
+                        endTime: '종료 시간',
+                        dispatched: '디스패치',
+                        all: '전체',
+                        yes: '예(Y)',
+                        no: '아니오(N)'
+                    },
                     operator: '운영자',
                     selectTime: '시간 선택',
                     operationCommand: '작업 명령',

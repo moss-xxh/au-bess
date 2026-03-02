@@ -430,31 +430,48 @@
         // ========== Filter Functions ==========
         function applyOpFilters() {
             const station = document.getElementById('stationFilter').value;
-            const command = document.getElementById('opCommandFilter').value;
-            const date = document.getElementById('opDateInput').value.trim();
+            const startTime = document.getElementById('startTimeFilter').value;
+            const endTime = document.getElementById('endTimeFilter').value;
+            const dispatched = document.getElementById('dispatchedFilter').value;
 
+            // First filter raw records by station and time range
             filteredData = allDispatchRecords.filter(record => {
                 if (station && record.stationName !== station) return false;
-                if (command && record.command !== command) return false;
-                if (date && !record.time.startsWith(date)) return false;
+                if (startTime) {
+                    const recordDate = record.time.split(' ')[0];
+                    if (recordDate < startTime) return false;
+                }
+                if (endTime) {
+                    const recordDate = record.time.split(' ')[0];
+                    if (recordDate > endTime) return false;
+                }
                 return true;
             });
 
-            // Update daily stats based on filtered data
+            // Generate daily stats from filtered records
             dailyStatsData = generateDailyStats(filteredData);
+
+            // Apply dispatched filter on the stats level
+            if (dispatched === 'Y') {
+                dailyStatsData = dailyStatsData.filter(stat => stat.chargeCount > 0 || stat.dischargeCount > 0);
+            } else if (dispatched === 'N') {
+                dailyStatsData = dailyStatsData.filter(stat => stat.chargeCount === 0 && stat.dischargeCount === 0);
+            }
+
             statsCurrentPage = 1;
 
             updateStatsTableDisplay();
             updateStatsPaginationDisplay();
 
             const t = (k, f) => window.i18n ? window.i18n.getText(k) : f;
-            showInfoToast(t('operationLog.buttons.search', '查询'), `${filteredData.length} ${t('operationLog.total', '共')} `);
+            showInfoToast(t('operationLog.buttons.search', '查询'), `${dailyStatsData.length} ${t('operationLog.total', '共')} `);
         }
 
         function resetOpFilters() {
             document.getElementById('stationFilter').selectedIndex = 0;
-            document.getElementById('opCommandFilter').selectedIndex = 0;
-            document.getElementById('opDateInput').value = '';
+            document.getElementById('dispatchedFilter').selectedIndex = 0;
+            // Reset date filters to default (last 7 days)
+            setDefaultDateRange();
             filteredData = [...allDispatchRecords];
 
             // Reset daily stats
@@ -465,10 +482,33 @@
             updateStatsPaginationDisplay();
         }
 
+        // Set default date range to last 7 days
+        function setDefaultDateRange() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+            
+            const formatDate = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            document.getElementById('startTimeFilter').value = formatDate(startDate);
+            document.getElementById('endTimeFilter').value = formatDate(endDate);
+        }
+
         // Realtime search on select change
         function setupOpRealTimeSearch() {
-            const selects = ['stationFilter', 'opCommandFilter'];
+            const selects = ['stationFilter', 'dispatchedFilter'];
             selects.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => applyOpFilters());
+            });
+            // Also listen for date changes
+            const dateInputs = ['startTimeFilter', 'endTimeFilter'];
+            dateInputs.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('change', () => applyOpFilters());
             });
@@ -531,20 +571,8 @@
         }
 
 
-        // ========== Date Picker for opDateInput ==========
-        function setupOpDatePicker() {
-            const dateInput = document.getElementById('opDateInput');
-            if (!dateInput) return;
-            dateInput.addEventListener('click', function(e) {
-                e.stopPropagation();
-                // Simple date input via prompt (lightweight approach)
-                const val = prompt(window.i18n ? window.i18n.getText('operationLog.filter.timePlaceholder') : '请输入日期 (YYYY-MM-DD)', dateInput.value || '2024-02-');
-                if (val !== null) {
-                    dateInput.value = val;
-                    applyOpFilters();
-                }
-            });
-        }
+        // ========== Date Range Setup ==========
+        // Date pickers are now native HTML5 date inputs, no special setup needed
 
         // ========== Initialization ==========
         document.addEventListener('DOMContentLoaded', () => {
@@ -590,13 +618,15 @@
                 }
             });
 
+            // Set default date range (last 7 days)
+            setDefaultDateRange();
+
             // Initial render
             updateStatsTableDisplay();
             updateStatsPaginationDisplay();
 
             // Setup realtime search
             setupOpRealTimeSearch();
-            setupOpDatePicker();
 
             // Language change observer
             if (window.i18n) {
