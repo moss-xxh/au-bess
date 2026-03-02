@@ -2457,8 +2457,8 @@
                         const time = dataParam.name;
                         const status = dataParam.value;
                         const statusText = status === 1
-                            ? '<span style="color: #00ff88;">🟢 智能托管开启</span>'
-                            : '<span style="color: #888;">⚫ 智能托管关闭</span>';
+                            ? `<span style="color: #00ff88;">🟢 ${window.i18n ? window.i18n.getText('operationLogDetail.autoOn') : '智能托管开启'}</span>`
+                            : `<span style="color: #888;">⚫ ${window.i18n ? window.i18n.getText('operationLogDetail.autoOff') : '智能托管关闭'}</span>`;
                         return `<strong>${time}</strong><br/>${statusText}`;
                     }
                 }
