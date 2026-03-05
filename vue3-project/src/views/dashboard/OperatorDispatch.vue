@@ -554,19 +554,7 @@ function buildPowerProfitOption(): echarts.EChartsOption {
             { offset: 1, color: 'rgba(255,215,0,0)' },
           ]),
         },
-        markArea: period === 'day' ? {
-          silent: true,
-          data: [
-            ...(controlPanelRef.value?.chargePeriods || [{ start: '09:00', end: '13:00' }]).map((p: any) => [
-              { xAxis: p.start, itemStyle: { color: 'rgba(0, 255, 136, 0.06)' } },
-              { xAxis: p.end },
-            ]),
-            ...(controlPanelRef.value?.dischargePeriods || [{ start: '17:00', end: '21:00' }]).map((p: any) => [
-              { xAxis: p.start, itemStyle: { color: 'rgba(255, 193, 7, 0.06)' } },
-              { xAxis: p.end },
-            ]),
-          ],
-        } : undefined,
+
       },
     ],
   }
@@ -641,22 +629,22 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
         markArea: {
           silent: true,
           data: [
-            [
+            ...(controlPanelRef.value?.chargePeriods?.value || [{ start: '09:00', end: '13:00' }]).map((p: any) => [
               {
-                xAxis: '09:00',
+                xAxis: p.start,
                 itemStyle: { color: 'rgba(0,255,136,0.08)' },
                 label: { show: true, position: 'insideTop', formatter: i18n.t('chargeWindow'), color: 'rgba(0,255,136,0.6)', fontSize: 11 },
               },
-              { xAxis: '13:00' },
-            ],
-            [
+              { xAxis: p.end },
+            ]),
+            ...(controlPanelRef.value?.dischargePeriods?.value || [{ start: '17:00', end: '21:00' }]).map((p: any) => [
               {
-                xAxis: '17:00',
+                xAxis: p.start,
                 itemStyle: { color: 'rgba(255,193,7,0.08)' },
                 label: { show: true, position: 'insideTop', formatter: i18n.t('dischargeWindow'), color: 'rgba(255,193,7,0.6)', fontSize: 11 },
               },
-              { xAxis: '21:00' },
-            ],
+              { xAxis: p.end },
+            ]),
           ],
         },
       },
@@ -773,6 +761,20 @@ onUnmounted(() => {
   powerProfitChart.value = null
   autoPreviewChart.value = null
 })
+// 监听Settings时段变化 → 重绘Auto Preview图表
+watch(
+  () => [
+    controlPanelRef.value?.chargePeriods?.value,
+    controlPanelRef.value?.dischargePeriods?.value,
+  ],
+  () => {
+    if (autoPreviewChart) {
+      autoPreviewChart.setOption(buildAutoPreviewOption(), { notMerge: false })
+    }
+  },
+  { deep: true }
+)
+
 </script>
 
 <style scoped>

@@ -655,6 +655,8 @@ function toggleEditMode() {
 }
 
 function closeSettings() {
+  savedChargePeriods.value = JSON.parse(JSON.stringify(editChargePeriods.value))
+  savedDischargePeriods.value = JSON.parse(JSON.stringify(editDischargePeriods.value))
   showSettingsModal.value = false
 }
 
@@ -663,12 +665,18 @@ function saveSettings() {
   dischargeStopSOC.value = editDischargeSOC.value
   if (editChargePeriods.value.length > 0) { autoChargeStart.value = editChargePeriods.value[0].start; autoChargeEnd.value = editChargePeriods.value[0].end }
   if (editDischargePeriods.value.length > 0) { autoDischargeStart.value = editDischargePeriods.value[0].start; autoDischargeEnd.value = editDischargePeriods.value[0].end }
+  savedChargePeriods.value = JSON.parse(JSON.stringify(editChargePeriods.value))
+  savedDischargePeriods.value = JSON.parse(JSON.stringify(editDischargePeriods.value))
   showSettingsModal.value = false
 }
 
+// 暴露已保存的时段（不是草稿editXxx）
+const savedChargePeriods = ref([{ start: '09:00', end: '13:00' }])
+const savedDischargePeriods = ref([{ start: '17:00', end: '21:00' }])
+
 defineExpose({
-  chargePeriods: editChargePeriods,
-  dischargePeriods: editDischargePeriods,
+  chargePeriods: savedChargePeriods,
+  dischargePeriods: savedDischargePeriods,
 })
 </script>
 
