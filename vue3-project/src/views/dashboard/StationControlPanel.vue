@@ -431,11 +431,11 @@ const regionSpotPrices: Record<string, number> = {
 
 // === 动态电价（AEMO实时数据，与右侧Market面板同源） ===
 const liveSpotPrice = computed(() => {
-  const now = new Date()
-  const aestHour = (now.getUTCHours() + 10) % 24
-  const aestMin = now.getUTCMinutes()
-  const idx = aestHour * 12 + Math.floor(aestMin / 5)
-  return aemoRealPriceData[Math.min(idx, aemoRealPriceData.length - 1)] ?? 65
+  // 与右侧 Market 的 Current Spot Price 完全同源
+  // 注意：OperatorDispatch用 data[currentHour] 取 market 数组
+  // market[i].historicalPrice = aemoRealPriceData[i]，所以这里直接取同一个index
+  const currentHour = (new Date().getUTCHours() + 10) % 24
+  return aemoRealPriceData[currentHour] ?? 65
 })
 
 // === 构建带 currentSpotPrice 的电站数据 ===
