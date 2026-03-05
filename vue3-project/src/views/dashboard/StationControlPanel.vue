@@ -1776,6 +1776,10 @@ function saveSettings() {
   padding: 8px 12px;
   font-size: 14px;
   flex: 1;
+  color-scheme: dark;
+}
+.time-input-field::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
 }
 
 .time-dash {
@@ -1874,10 +1878,9 @@ function saveSettings() {
   margin-top: -5px;
 }
 .soc-slider.discharge-slider::-webkit-slider-runnable-track {
-  background: linear-gradient(to left, #ffc107 0%, #ffc107 var(--val, 30%), rgba(255,255,255,0.1) var(--val, 30%));
+  background: linear-gradient(to right, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.1) var(--val, 30%), #ffc107 var(--val, 30%), #ffc107 100%);
   border-radius: 9999px;
   height: 8px;
-  direction: rtl;
 }
 
 .soc-slider.full-width {
