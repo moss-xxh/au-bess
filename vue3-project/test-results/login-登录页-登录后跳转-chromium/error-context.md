@@ -1,0 +1,53 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - img "Logo" [ref=e7]
+    - generic [ref=e8] [cursor=pointer]:
+      - generic [ref=e9]: EN
+      - generic [ref=e10]: "|"
+      - generic [ref=e11]: 中
+  - main [ref=e12]:
+    - heading "Select Your Role" [level=1] [ref=e13]
+    - paragraph [ref=e14]: Choose your role to enter the system
+    - generic [ref=e15]:
+      - generic [ref=e16] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e21]: Owner
+        - generic [ref=e22]: Property Owner
+        - generic [ref=e23]: Create and manage stations, handle faults, assign O&M accounts, and fully control your assets.
+        - list [ref=e24]:
+          - listitem [ref=e25]:
+            - img [ref=e27]
+            - generic [ref=e29]: Create stations & view data
+          - listitem [ref=e30]:
+            - img [ref=e32]
+            - generic [ref=e34]: Fault detection & resolution
+          - listitem [ref=e35]:
+            - img [ref=e37]
+            - generic [ref=e39]: Create operators & assign stations
+        - button "Enter Owner Panel" [ref=e40]
+      - generic [ref=e41] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e46]: Operator
+        - generic [ref=e47]: O&M Provider
+        - generic [ref=e48]: AI-powered dispatch for assigned stations, energy reports, and historical scheduling records.
+        - list [ref=e49]:
+          - listitem [ref=e50]:
+            - img [ref=e52]
+            - generic [ref=e54]: AI smart dispatch
+          - listitem [ref=e55]:
+            - img [ref=e57]
+            - generic [ref=e59]: View assigned station data
+          - listitem [ref=e60]:
+            - img [ref=e62]
+            - generic [ref=e64]: Energy & revenue reports
+          - listitem [ref=e65]:
+            - img [ref=e67]
+            - generic [ref=e69]: Dispatch history records
+        - button "Enter Operator Panel" [ref=e70]
+  - contentinfo [ref=e71]:
+    - link "Sign Out" [ref=e72] [cursor=pointer]:
+      - /url: "#"
+```

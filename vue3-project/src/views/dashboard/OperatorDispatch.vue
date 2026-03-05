@@ -629,7 +629,7 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
         markArea: {
           silent: true,
           data: [
-            ...(controlPanelRef.value?.chargePeriods?.value || [{ start: '09:00', end: '13:00' }]).map((p: any) => [
+            ...(controlPanelRef.value?.chargePeriods || [{ start: '09:00', end: '13:00' }]).map((p: any) => [
               {
                 xAxis: p.start,
                 itemStyle: { color: 'rgba(0,255,136,0.08)' },
@@ -637,7 +637,7 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
               },
               { xAxis: p.end },
             ]),
-            ...(controlPanelRef.value?.dischargePeriods?.value || [{ start: '17:00', end: '21:00' }]).map((p: any) => [
+            ...(controlPanelRef.value?.dischargePeriods || [{ start: '17:00', end: '21:00' }]).map((p: any) => [
               {
                 xAxis: p.start,
                 itemStyle: { color: 'rgba(255,193,7,0.08)' },
@@ -764,12 +764,12 @@ onUnmounted(() => {
 // 监听Settings时段变化 → 重绘Auto Preview图表
 watch(
   () => [
-    controlPanelRef.value?.chargePeriods?.value,
-    controlPanelRef.value?.dischargePeriods?.value,
+    controlPanelRef.value?.chargePeriods,
+    controlPanelRef.value?.dischargePeriods,
   ],
   () => {
     if (autoPreviewChart) {
-      autoPreviewChart.setOption(buildAutoPreviewOption(), { notMerge: false })
+      autoPreviewChart.value?.setOption(buildAutoPreviewOption(), { notMerge: false })
     }
   },
   { deep: true }
