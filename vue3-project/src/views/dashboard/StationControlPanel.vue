@@ -303,8 +303,8 @@
             <!-- 24h 时间轴可视化 -->
             <div class="timeline-bar">
               <div class="timeline-track">
-                <div class="timeline-charge-block" :style="timelineChargeStyle"></div>
-                <div class="timeline-discharge-block" :style="timelineDischargeStyle"></div>
+                <div v-for="(p, i) in editChargePeriods" :key="'tc'+i" class="timeline-charge-block" :style="getTimeBlockStyle(p)"></div>
+                <div v-for="(p, i) in editDischargePeriods" :key="'td'+i" class="timeline-discharge-block" :style="getTimeBlockStyle(p)"></div>
               </div>
               <div class="timeline-labels">
                 <span>00:00</span><span>03:00</span><span>06:00</span><span>09:00</span>
@@ -602,17 +602,12 @@ function handleDischarge() {
 }
 
 // 24h 时间轴样式计算
-const timelineChargeStyle = computed(() => {
-  const start = timeToPercent(editChargePeriods.value[0]?.start || '09:00')
-  const end = timeToPercent(editChargePeriods.value[0]?.end || '13:00')
-  return { left: start + '%', width: (end - start) + '%' }
-})
-
-const timelineDischargeStyle = computed(() => {
-  const start = timeToPercent(editDischargePeriods.value[0]?.start || '17:00')
-  const end = timeToPercent(editDischargePeriods.value[0]?.end || '21:00')
-  return { left: start + '%', width: (end - start) + '%' }
-})
+function getTimeBlockStyle(p: { start: string; end: string }) {
+  const s = timeToPercent(p.start || '00:00')
+  const e = timeToPercent(p.end || '00:00')
+  const w = e > s ? e - s : 0
+  return { left: s + '%', width: w + '%' }
+}
 
 function timeToPercent(t: string) {
   const [h, m] = t.split(':').map(Number)
@@ -1779,7 +1774,7 @@ function saveSettings() {
   color-scheme: dark;
 }
 .time-input-field::-webkit-calendar-picker-indicator {
-  filter: invert(0.8);
+  filter: invert(0.6) brightness(1.2);
 }
 
 .time-dash {
@@ -1795,11 +1790,12 @@ function saveSettings() {
 }
 
 .btn-save-settings {
+
   padding: 10px 24px;
   border-radius: 8px;
   border: none;
   background: var(--color-primary);
-  color: #fff;
+  color: #1a1f2e;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -1834,8 +1830,8 @@ function saveSettings() {
   position: absolute;
   top: 2px;
   height: 20px;
-  background: linear-gradient(90deg, rgba(100, 149, 237, 0.3), rgba(100, 149, 237, 0.5));
-  border: 1px solid rgba(100, 149, 237, 0.6);
+  background: linear-gradient(90deg, rgba(255, 193, 7, 0.3), rgba(255, 193, 7, 0.5));
+  border: 1px solid rgba(255, 193, 7, 0.6);
   border-radius: 3px;
 }
 
