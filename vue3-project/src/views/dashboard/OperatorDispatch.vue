@@ -19,7 +19,7 @@
         </div>
 
         <!-- Market Tab -->
-        <template v-if="activeTab === 'market'">
+        <div v-show="activeTab === 'market'" style="flex:1;display:flex;flex-direction:column">
           <div class="metric-cards">
             <div class="metric-card">
               <div class="metric-label">{{ i18n.t('currentSpotPrice') }}</div>
@@ -46,10 +46,10 @@
             </div>
           </div>
           <div ref="marketChartRef" class="chart-container"></div>
-        </template>
+        </div>
 
         <!-- Auto Preview Panel -->
-        <template v-else>
+        <div v-show="activeTab === 'autoPreview'" style="flex:1;display:flex;flex-direction:column">
           <div class="auto-preview-panel">
             <!-- 3 预估指标 -->
             <div class="ap-stats-row">
@@ -72,9 +72,9 @@
               </div>
             </div>
             <!-- 迷你价格预测图 -->
-            <div ref="autoPreviewChartRef" class="chart-container" style="height: 320px;"></div>
+            <div ref="autoPreviewChartRef" class="chart-container auto-preview-chart"></div>
           </div>
-        </template>
+        </div>
       </div>
     </div>
 
@@ -155,6 +155,7 @@ import {
   getPowerProfitCumulativeData,
 } from '@/mock/dashboard'
 import type { OperatorChartData, PowerProfitDataPoint } from '@/mock/dashboard'
+import { aemoRealPriceData } from '@/mock/aemo-data'
 import StationControlPanel from './StationControlPanel.vue'
 
 const controlPanelRef = ref<InstanceType<typeof StationControlPanel> | null>(null)
@@ -593,7 +594,7 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
     legend: {
       data: [
         i18n.t('historicalPrice'),
-        i18n.t('aiPredictedPrice'),
+        i18n.t('predictedPrice'),
       ],
       textStyle: { color: 'rgba(255,255,255,0.7)' },
       top: 10,
@@ -603,7 +604,7 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
       type: 'category',
       data: times,
       axisLine: { show: false },
-      axisLabel: { color: 'rgba(255,255,255,0.7)', interval: 1, fontSize: 12 },
+      axisLabel: { color: 'rgba(255,255,255,0.7)', interval: 23, fontSize: 12 },
       splitLine: { show: false },
     },
     yAxis: {
@@ -619,11 +620,10 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
       {
         name: i18n.t('historicalPrice'),
         type: 'line',
-        data: historicalPrices,
+        data: [...aemoRealPriceData],
         smooth: true,
-        symbol: 'circle',
-        symbolSize: 4,
-        lineStyle: { color: '#00ff88', width: 3 },
+        showSymbol: false,
+        lineStyle: { color: '#00ff88', width: 2 },
         itemStyle: { color: '#00ff88' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -631,6 +631,13 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
             { offset: 1, color: 'rgba(0,255,136,0.02)' },
           ]),
         },
+        markLine: (() => {
+          const idx = data.findIndex(d => d.historicalPrice === null && d.predictedPrice !== null)
+          return idx > 0 ? {
+            symbol: 'none', silent: true,
+            data: [{ xAxis: idx - 1, lineStyle: { color: 'rgba(255,255,255,0.4)', type: 'dashed', width: 2 }, label: { show: false } }],
+          } : undefined
+        })(),
         markArea: {
           silent: true,
           data: [
@@ -638,7 +645,7 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
               {
                 xAxis: p.start,
                 itemStyle: { color: 'rgba(0,255,136,0.08)' },
-                label: { show: true, position: 'insideTop', formatter: i18n.t('chargeWindow'), color: 'rgba(0,255,136,0.6)', fontSize: 11 },
+                label: { show: true, position: 'insideTop', formatter: i18n.t('charge'), color: 'rgba(0,255,136,0.6)', fontSize: 11 },
               },
               { xAxis: p.end },
             ]),
@@ -646,7 +653,7 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
               {
                 xAxis: p.start,
                 itemStyle: { color: 'rgba(255,193,7,0.08)' },
-                label: { show: true, position: 'insideTop', formatter: i18n.t('dischargeWindow'), color: 'rgba(255,193,7,0.6)', fontSize: 11 },
+                label: { show: true, position: 'insideTop', formatter: i18n.t('discharge'), color: 'rgba(255,193,7,0.6)', fontSize: 11 },
               },
               { xAxis: p.end },
             ]),
@@ -654,14 +661,14 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
         },
       },
       {
-        name: i18n.t('aiPredictedPrice'),
+        name: i18n.t('predictedPrice'),
         type: 'line',
-        data: aiPrices,
+        data: data.map(d => d.predictedPrice),
         smooth: true,
-        symbol: 'circle',
-        symbolSize: 4,
-        lineStyle: { color: '#a855f7', width: 2, type: 'dashed' },
-        itemStyle: { color: '#a855f7' },
+        showSymbol: false,
+        connectNulls: true,
+        lineStyle: { color: '#00ff88', width: 2, type: 'dashed' },
+        itemStyle: { color: '#00ff88' },
       },
     ],
   }
@@ -676,6 +683,7 @@ function initMarketChart() {
 function initAutoPreviewChart() {
   if (!autoPreviewChartRef.value) return
   if (autoPreviewChart.value) {
+    autoPreviewChart.value.resize()
     autoPreviewChart.value.setOption(buildAutoPreviewOption(), true)
     return
   }
@@ -833,7 +841,7 @@ watch(
   margin-bottom: 16px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-md);
-  padding: 16px 0;
+  padding: 10px 0;
 }
 .metric-card { flex: 1; text-align: center; padding: 0 16px; }
 .metric-divider { width: 1px; background: rgba(255, 255, 255, 0.1); align-self: stretch; }
@@ -860,7 +868,8 @@ watch(
 .auto-preview-panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
+  flex: 1;
 }
 .ap-stats-row {
   display: flex;
@@ -900,6 +909,7 @@ watch(
 }
 
 .chart-container { width: 100%; height: 400px; }
+.auto-preview-chart { flex: 1; min-height: 300px; height: auto; }
 
 .power-profit-card {
   background: var(--bg-card);

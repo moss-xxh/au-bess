@@ -123,20 +123,24 @@
         <div class="param-line"><span class="param-label">{{ i18n.t('dischargeStopSOCLabel') }}</span> <span class="discharge-val">🔋 {{ dischargeStopSOC }}%</span></div>
       </div>
 
-      <!-- Auto时段 循环显示所有已保存时段 -->
+      <!-- Auto时段 左充电右放电 -->
       <div class="auto-schedule-grid">
-        <div v-for="(p, i) in savedChargePeriods" :key="'sc'+i" class="schedule-card charge-schedule">
+        <div class="schedule-card charge-schedule">
           <span class="schedule-icon">⚡</span>
           <div class="schedule-detail">
-            <span class="schedule-label">{{ i18n.t('autoChargeLabel') }} {{ savedChargePeriods.length > 1 ? i+1 : '' }}</span>
-            <span class="schedule-time">{{ p.start }}-{{ p.end }}</span>
+            <span class="schedule-label">{{ i18n.t('autoChargeLabel') }}</span>
+            <div v-for="(p, i) in savedChargePeriods" :key="'sc'+i" class="schedule-time-row">
+              <span class="schedule-time">{{ p.start }}-{{ p.end }}</span>
+            </div>
           </div>
         </div>
-        <div v-for="(p, i) in savedDischargePeriods" :key="'sd'+i" class="schedule-card discharge-schedule">
+        <div class="schedule-card discharge-schedule">
           <span class="schedule-icon">🔋</span>
           <div class="schedule-detail">
-            <span class="schedule-label">{{ i18n.t('autoDischargeLabel') }} {{ savedDischargePeriods.length > 1 ? i+1 : '' }}</span>
-            <span class="schedule-time">{{ p.start }}-{{ p.end }}</span>
+            <span class="schedule-label">{{ i18n.t('autoDischargeLabel') }}</span>
+            <div v-for="(p, i) in savedDischargePeriods" :key="'sd'+i" class="schedule-time-row">
+              <span class="schedule-time">{{ p.start }}-{{ p.end }}</span>
+            </div>
           </div>
         </div>
       </div>

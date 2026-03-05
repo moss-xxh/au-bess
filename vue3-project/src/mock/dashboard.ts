@@ -226,31 +226,37 @@ export function getOperatorChartData(): OperatorChartData {
       })
     }
 
-    // Power & Profit: 充放电时段 (每5分钟数据缩比)
+  }
+
+  // Power & Profit: 每小时1个点 (和v2一致)
+  for (let h = 0; h < 24; h++) {
+    const time = String(h).padStart(2, '0') + ':00'
+    const price = aemoRealPriceData[h * 12] || 50  // 该小时的AEMO价格
+
     let chgMWh = 0
     let dchMWh = 0
 
-    // 充电时段: 01:00-05:00 (低价), 10:00-14:00 (太阳能过剩负电价)
+    // 充电时段: 01:00-05:00 (低价), 10:00-14:00 (太阳能过剩)
     if (h >= 1 && h < 5) {
-      chgMWh = (0.8 + (h * 0.1)) / 12
+      chgMWh = 0.8 + (h * 0.1)
     } else if (h >= 10 && h < 14) {
-      chgMWh = (0.5 + ((h - 10) * 0.15)) / 12
+      chgMWh = 0.5 + ((h - 10) * 0.15)
     }
 
     // 放电时段: 07:00-09:00 (早高峰), 16:00-21:00 (傍晚高峰)
     if (h >= 7 && h < 9) {
-      dchMWh = (0.4 + ((h - 7) * 0.15)) / 12
+      dchMWh = 0.4 + ((h - 7) * 0.15)
     } else if (h >= 16 && h < 21) {
-      dchMWh = (0.5 + ((h - 16) * 0.08)) / 12
+      dchMWh = 0.5 + ((h - 16) * 0.08)
     }
 
-    const actualCost = chgMWh > 0 ? chgMWh * price : 0
-    const actualRev = dchMWh > 0 ? dchMWh * price : 0
+    const actualCost = chgMWh > 0 ? chgMWh * Math.abs(price) : 0
+    const actualRev = dchMWh > 0 ? dchMWh * Math.abs(price) : 0
 
     powerProfit.push({
       time,
-      chargeEnergy: parseFloat((-chgMWh).toFixed(4)),
-      dischargeEnergy: parseFloat(dchMWh.toFixed(4)),
+      chargeEnergy: parseFloat((-chgMWh).toFixed(2)),
+      dischargeEnergy: parseFloat(dchMWh.toFixed(2)),
       chargeCost: parseFloat((-Math.abs(actualCost)).toFixed(2)),
       dischargeRevenue: parseFloat(actualRev.toFixed(2)),
       netProfit: parseFloat((actualRev - Math.abs(actualCost)).toFixed(2)),
