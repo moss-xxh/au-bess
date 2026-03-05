@@ -436,8 +436,8 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('predictedPrice'), type: 'line', data: predictedPrices,
-        smooth: true, showSymbol: true,
-        symbolSize: (value: any, params: any) => marketData.value[params.dataIndex]?.isAnchor ? 6 : 0,
+        smooth: true, connectNulls: true, showSymbol: true,
+        symbolSize: (value: any, params: any) => chartData.value.market[params.dataIndex]?.isAnchor ? 6 : 0,
         lineStyle: { color: '#00ff88', width: 2, type: 'dashed' }, itemStyle: { color: '#00ff88' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -448,8 +448,8 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('predictedDemand'), type: 'line', yAxisIndex: 1, data: predictedDemands,
-        smooth: true, showSymbol: true,
-        symbolSize: (value: any, params: any) => marketData.value[params.dataIndex]?.isAnchor ? 6 : 0,
+        smooth: true, connectNulls: true, showSymbol: true,
+        symbolSize: (value: any, params: any) => chartData.value.market[params.dataIndex]?.isAnchor ? 6 : 0,
         lineStyle: { color: '#ffd700', width: 2, type: 'dashed' }, itemStyle: { color: '#ffd700' },
       },
     ],

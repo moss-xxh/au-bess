@@ -214,19 +214,14 @@ export function getOperatorChartData(): OperatorChartData {
         predictedDemand: demand,
       })
     } else {
-      // 预测数据：30分钟锚点用真实值，中间5分钟用线性插值填满
-      const anchor = Math.floor(i / 6) * 6  // 最近的30分钟锚点
-      const nextAnchor = Math.min(anchor + 6, 287)
-      const frac = (i - anchor) / Math.max(nextAnchor - anchor, 1)
-      const interpPrice = aemoRealPriceData[anchor] + (aemoRealPriceData[nextAnchor] - aemoRealPriceData[anchor]) * frac
-      const interpDemand = aemoRealDemandData[anchor] + (aemoRealDemandData[nextAnchor] - aemoRealDemandData[anchor]) * frac
-      const isAnchor = (i % 6 === 0)  // 30分钟锚点标记
+      // 预测数据30分钟一个点，中间null
+      const isAnchor = (i % 6 === 0)
       market.push({
         time,
         historicalPrice: null,
-        predictedPrice: parseFloat(interpPrice.toFixed(2)),
+        predictedPrice: isAnchor ? price : null,
         demand: null,
-        predictedDemand: parseFloat(interpDemand.toFixed(0)),
+        predictedDemand: isAnchor ? demand : null,
         isAnchor,
       })
     }
