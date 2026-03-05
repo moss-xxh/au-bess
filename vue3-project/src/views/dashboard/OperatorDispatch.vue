@@ -264,9 +264,11 @@ function seededRandom(i: number): number {
 }
 
 const predictedPrices = computed(() => {
-  const data = chartData.value.market
-  return data.map((d, i) => {
-    const base = d.historicalPrice ?? d.predictedPrice ?? 0
+  // AI预测基于完整AEMO真实价格（288点），加随机偏移
+  const { aemoRealPriceData } = chartData.value.market.length > 0
+    ? { aemoRealPriceData: chartData.value.market.map(d => d.historicalPrice ?? d.predictedPrice ?? 0) }
+    : { aemoRealPriceData: [] }
+  return aemoRealPriceData.map((base, i) => {
     const factor = 0.9 + seededRandom(i) * 0.2 // 0.9 - 1.1
     return +(base * factor).toFixed(2)
   })
@@ -434,7 +436,8 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('predictedPrice'), type: 'line', data: predictedPrices,
-        smooth: true, showSymbol: false, connectNulls: true,
+        smooth: true, showSymbol: true,
+        symbolSize: (value: any, params: any) => marketData.value[params.dataIndex]?.isAnchor ? 6 : 0,
         lineStyle: { color: '#00ff88', width: 2, type: 'dashed' }, itemStyle: { color: '#00ff88' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -445,7 +448,8 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('predictedDemand'), type: 'line', yAxisIndex: 1, data: predictedDemands,
-        smooth: true, showSymbol: false, connectNulls: true,
+        smooth: true, showSymbol: true,
+        symbolSize: (value: any, params: any) => marketData.value[params.dataIndex]?.isAnchor ? 6 : 0,
         lineStyle: { color: '#ffd700', width: 2, type: 'dashed' }, itemStyle: { color: '#ffd700' },
       },
     ],
@@ -564,7 +568,8 @@ function buildPowerProfitOption(): echarts.EChartsOption {
 function buildAutoPreviewOption(): echarts.EChartsOption {
   const data = chartData.value.market
   const times = data.map(d => d.time)
-  const historicalPrices = data.map(d => d.historicalPrice ?? d.predictedPrice ?? 0)
+  // 完整288点AEMO价格（历史+预测拼接为一条连续线）
+  const fullPrices = data.map(d => d.historicalPrice ?? d.predictedPrice ?? 0)
   const aiPrices = predictedPrices.value
 
   return {
