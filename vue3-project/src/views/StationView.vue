@@ -25,6 +25,7 @@
         v-model="searchQuery"
         :placeholder="i18n.t('searchStation')"
         class="search-input"
+        @keyup.enter="applyFilter"
       />
       <select v-model="regionFilter" class="filter-select">
         <option value="">{{ i18n.t('allRegions') }}</option>
@@ -197,6 +198,7 @@ const authStore = useAuthStore()
 // === State ===
 const viewMode = ref<'table' | 'card'>('card')
 const searchQuery = ref('')
+const appliedQuery = ref('')
 const regionFilter = ref('')
 const statusFilter = ref('')
 const currentPage = ref(1)
@@ -236,7 +238,7 @@ const regions = computed(() => [...new Set(stations.value.map(s => s.region))])
 
 const filteredStations = computed(() => {
   let result = stations.value.filter(s => {
-    if (searchQuery.value && !s.name.toLowerCase().includes(searchQuery.value.toLowerCase())) return false
+    if (appliedQuery.value && !s.name.toLowerCase().includes(appliedQuery.value.toLowerCase())) return false
     if (regionFilter.value && s.region !== regionFilter.value) return false
     if (statusFilter.value && s.commStatus !== statusFilter.value) return false
     return true
@@ -269,11 +271,13 @@ const paginatedStations = computed(() => {
 // === Actions ===
 
 function applyFilter() {
+  appliedQuery.value = searchQuery.value
   currentPage.value = 1
 }
 
 function resetFilter() {
   searchQuery.value = ''
+  appliedQuery.value = ''
   regionFilter.value = ''
   statusFilter.value = ''
   currentPage.value = 1
