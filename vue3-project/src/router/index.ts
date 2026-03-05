@@ -75,13 +75,13 @@ const router = createRouter({
         {
           path: 'reports',
           name: 'reports',
-          component: () => import('../views/DashboardView.vue'), // temp reuse
+          component: () => import('../views/ReportsView.vue'),
           meta: { title: 'navReports', roles: ['operator'] },
         },
         {
           path: 'logs',
           name: 'logs',
-          component: () => import('../views/DashboardView.vue'), // temp reuse
+          component: () => import('../views/OperationLogsView.vue'),
           meta: { title: 'navLogs', roles: ['operator'] },
         },
       ],

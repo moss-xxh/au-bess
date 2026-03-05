@@ -316,6 +316,34 @@ const messages: Record<string, Record<Locale, string>> = {
   sdPeriodLabel: { en: 'Period', zh: '时段' },
   sdChargeCost: { en: 'Charge Cost', zh: '充电成本' },
   sdDischargeRev: { en: 'Discharge Rev', zh: '放电收益' },
+
+  // Reports page
+  rptTitle: { en: 'Reports', zh: '报表' },
+  rptSubtitle: { en: 'Energy Trading Profit Analysis', zh: '能源交易利润分析' },
+  rptRefresh: { en: 'Refresh', zh: '刷新' },
+  rptDataOverview: { en: 'Data Overview', zh: '数据概览' },
+  rptChargeAmount: { en: 'Charge', zh: '充电量' },
+  rptDischargeAmount: { en: 'Discharge', zh: '放电量' },
+  rptAvgBuyPrice: { en: 'Avg Buy Price', zh: '充电均价' },
+  rptAvgSellPrice: { en: 'Avg Sell Price', zh: '放电均价' },
+  rptChargeMWh: { en: 'Charge (MWh)', zh: '充电量 (MWh)' },
+  rptDischargeMWh: { en: 'Discharge (MWh)', zh: '放电量 (MWh)' },
+  rptChartCharge: { en: 'Charge & Discharge', zh: '充放电量' },
+  rptChartCumProfit: { en: 'Cumulative Profit', zh: '累计收益' },
+
+  // Operation Logs page
+  logTitle: { en: 'Operation Logs', zh: '操作记录' },
+  logAllDispatch: { en: 'All Dispatch', zh: '全部调度' },
+  logDispatchYes: { en: 'Dispatched', zh: '已调度' },
+  logDispatchNo: { en: 'Not Dispatched', zh: '未调度' },
+  logQuery: { en: 'Query', zh: '查询' },
+  logDailyStats: { en: 'Daily Station Statistics', zh: '每日电站统计' },
+  logNoData: { en: 'No data found', zh: '暂无数据' },
+  logDetailTitle: { en: 'Log Detail', zh: '日志详情' },
+  logChargeKWh: { en: 'Charge (kWh)', zh: '充电量 (kWh)' },
+  logDischargeKWh: { en: 'Discharge (kWh)', zh: '放电量 (kWh)' },
+  logOperator: { en: 'Operator', zh: '操作员' },
+  logType: { en: 'Dispatch Type', zh: '调度类型' },
 }
 
 // 运行模式：mock数据中的中文值 → 翻译key 的映射
