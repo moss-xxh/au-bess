@@ -2,7 +2,7 @@
   <div class="operator-dispatch">
     <!-- Upper Left: Station Control Panel -->
     <div class="left-panel">
-      <StationControlPanel />
+      <StationControlPanel ref="controlPanelRef" />
     </div>
 
     <!-- Upper Right: Market Area -->
@@ -156,6 +156,8 @@ import {
 } from '@/mock/dashboard'
 import type { OperatorChartData, PowerProfitDataPoint } from '@/mock/dashboard'
 import StationControlPanel from './StationControlPanel.vue'
+
+const controlPanelRef = ref<InstanceType<typeof StationControlPanel> | null>(null)
 
 const i18n = useI18nStore()
 
@@ -376,7 +378,7 @@ function buildMarketOption(): echarts.EChartsOption {
       textStyle: { color: 'rgba(255,255,255,0.7)' },
       top: 10,
     },
-    grid: { left: 60, right: 60, bottom: 40, top: 50, containLabel: true },
+    grid: { left: 10, right: 10, bottom: 40, top: 50, containLabel: true },
     xAxis: {
       type: 'category',
       data: times,
@@ -432,7 +434,7 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('predictedPrice'), type: 'line', data: predictedPrices,
-        smooth: true, showSymbol: false,
+        smooth: true, showSymbol: false, connectNulls: true,
         lineStyle: { color: '#00ff88', width: 2, type: 'dashed' }, itemStyle: { color: '#00ff88' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -443,7 +445,7 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('predictedDemand'), type: 'line', yAxisIndex: 1, data: predictedDemands,
-        smooth: true, showSymbol: false,
+        smooth: true, showSymbol: false, connectNulls: true,
         lineStyle: { color: '#ffd700', width: 2, type: 'dashed' }, itemStyle: { color: '#ffd700' },
       },
     ],
@@ -552,6 +554,19 @@ function buildPowerProfitOption(): echarts.EChartsOption {
             { offset: 1, color: 'rgba(255,215,0,0)' },
           ]),
         },
+        markArea: period === 'day' ? {
+          silent: true,
+          data: [
+            ...(controlPanelRef.value?.chargePeriods || [{ start: '09:00', end: '13:00' }]).map((p: any) => [
+              { xAxis: p.start, itemStyle: { color: 'rgba(0, 255, 136, 0.06)' } },
+              { xAxis: p.end },
+            ]),
+            ...(controlPanelRef.value?.dischargePeriods || [{ start: '17:00', end: '21:00' }]).map((p: any) => [
+              { xAxis: p.start, itemStyle: { color: 'rgba(255, 193, 7, 0.06)' } },
+              { xAxis: p.end },
+            ]),
+          ],
+        } : undefined,
       },
     ],
   }
@@ -590,7 +605,7 @@ function buildAutoPreviewOption(): echarts.EChartsOption {
       textStyle: { color: 'rgba(255,255,255,0.7)' },
       top: 10,
     },
-    grid: { left: 60, right: 30, bottom: 40, top: 50, containLabel: true },
+    grid: { left: 10, right: 10, bottom: 40, top: 50, containLabel: true },
     xAxis: {
       type: 'category',
       data: times,

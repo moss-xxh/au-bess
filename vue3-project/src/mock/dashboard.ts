@@ -213,12 +213,14 @@ export function getOperatorChartData(): OperatorChartData {
         predictedDemand: demand,
       })
     } else {
+      // 预测数据30分钟一个点（每6个5分钟取一个）
+      const isPredictPoint = (i % 6 === 0)
       market.push({
         time,
         historicalPrice: null,
-        predictedPrice: price,
+        predictedPrice: isPredictPoint ? price : null,
         demand: null,
-        predictedDemand: demand,
+        predictedDemand: isPredictPoint ? demand : null,
       })
     }
 

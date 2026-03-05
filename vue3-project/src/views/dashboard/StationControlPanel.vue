@@ -665,6 +665,11 @@ function saveSettings() {
   if (editDischargePeriods.value.length > 0) { autoDischargeStart.value = editDischargePeriods.value[0].start; autoDischargeEnd.value = editDischargePeriods.value[0].end }
   showSettingsModal.value = false
 }
+
+defineExpose({
+  chargePeriods: editChargePeriods,
+  dischargePeriods: editDischargePeriods,
+})
 </script>
 
 <style scoped>
