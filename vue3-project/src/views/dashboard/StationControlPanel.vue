@@ -1717,6 +1717,7 @@ function saveSettings() {
   background: var(--color-primary);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+  margin-top: -5px;
 }
 
 .discharge-slider::-webkit-slider-thumb {
@@ -1725,6 +1726,7 @@ function saveSettings() {
   background: #ffc107;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  margin-top: -5px;
 }
 
 .soc-input-wrap {
@@ -1855,6 +1857,7 @@ function saveSettings() {
   background: #00ff88;
   border: 2px solid #fff;
   box-shadow: 0 2px 6px rgba(0, 255, 136, 0.4);
+  margin-top: -5px;
 }
 .soc-slider.charge-slider::-webkit-slider-runnable-track {
   background: linear-gradient(to right, #00ff88 0%, #00ff88 var(--val, 75%), rgba(255,255,255,0.1) var(--val, 75%));
@@ -1868,9 +1871,10 @@ function saveSettings() {
   background: #ffc107;
   border: 2px solid #fff;
   box-shadow: 0 2px 6px rgba(255, 193, 7, 0.4);
+  margin-top: -5px;
 }
 .soc-slider.discharge-slider::-webkit-slider-runnable-track {
-  background: linear-gradient(to left, #ffc107 0%, #ffc107 calc(100% - var(--val, 30%)), rgba(255,255,255,0.1) calc(100% - var(--val, 30%)));
+  background: linear-gradient(to left, #ffc107 0%, #ffc107 var(--val, 30%), rgba(255,255,255,0.1) var(--val, 30%));
   border-radius: 9999px;
   height: 8px;
   direction: rtl;
