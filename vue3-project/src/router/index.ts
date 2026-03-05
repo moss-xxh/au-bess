@@ -115,9 +115,11 @@ router.beforeEach((to) => {
   }
 
   // 4. Role permission check
-  if (to.meta.roles && authStore.user.role && !to.meta.roles.includes(authStore.user.role)) {
+  if (to.meta.roles && authStore.user.role && !(to.meta.roles as string[]).includes(authStore.user.role)) {
     return { name: 'dashboard' }
   }
+  // Explicit allow
+  return true
 })
 
 export default router

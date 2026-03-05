@@ -51,7 +51,7 @@
               <span>{{ t.ownerF3 }}</span>
             </li>
           </ul>
-          <button class="role-btn">{{ t.ownerBtn }}</button>
+          <button type="button" class="role-btn">{{ t.ownerBtn }}</button>
         </div>
 
         <!-- Operator Card -->
@@ -91,7 +91,7 @@
               <span>{{ t.operatorF4 }}</span>
             </li>
           </ul>
-          <button class="role-btn">{{ t.operatorBtn }}</button>
+          <button type="button" class="role-btn">{{ t.operatorBtn }}</button>
         </div>
       </div>
     </main>
@@ -165,7 +165,9 @@ function toggleLang() {
 
 function selectRole(role: 'owner' | 'operator') {
   authStore.setRole(role)
-  router.push('/dashboard')
+  router.push('/dashboard').catch((err: any) => {
+    console.error('Navigation failed:', err)
+  })
 }
 
 function handleLogout() {
