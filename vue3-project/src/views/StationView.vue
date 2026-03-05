@@ -357,8 +357,8 @@ function goDetail(id: string) {
 }
 
 .search-input {
-  flex: 1;
-  min-width: 200px;
+  width: 280px;
+  max-width: 280px;
   padding: 10px 14px;
   background: var(--bg-input);
   border: 1px solid var(--border-default);
