@@ -675,6 +675,8 @@ function saveSettings() {
 <style scoped>
 /* === 控制面板容器 === */
 .control-panel {
+  height: 100%;
+  box-sizing: border-box;
   background: var(--bg-card);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-default);
@@ -1101,6 +1103,7 @@ function saveSettings() {
 
 /* === Settings区 === */
 .settings-section {
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -2095,6 +2098,7 @@ function saveSettings() {
 }
 
 .auto-conditions-grid {
+  align-items: stretch;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
