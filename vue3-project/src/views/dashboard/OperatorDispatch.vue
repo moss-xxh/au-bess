@@ -381,7 +381,7 @@ function buildMarketOption(): echarts.EChartsOption {
       type: 'category',
       data: times,
       axisLine: { show: false },
-      axisLabel: { color: 'rgba(255,255,255,0.7)', interval: 1, fontSize: 12 },
+      axisLabel: { color: 'rgba(255,255,255,0.7)', interval: 23, fontSize: 11 },
       splitLine: { show: false },
     },
     yAxis: [
@@ -411,8 +411,8 @@ function buildMarketOption(): echarts.EChartsOption {
         name: i18n.t('historicalPrice'),
         type: 'line',
         data: historicalPrices,
-        smooth: true, symbol: 'circle', symbolSize: 4,
-        lineStyle: { color: '#00ff88', width: 3 },
+        smooth: true, showSymbol: false,
+        lineStyle: { color: '#00ff88', width: 2 },
         itemStyle: { color: '#00ff88' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -427,12 +427,12 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('demand'), type: 'line', yAxisIndex: 1, data: demands,
-        smooth: true, symbol: 'circle', symbolSize: 4,
+        smooth: true, showSymbol: false,
         lineStyle: { color: '#ffd700', width: 2 }, itemStyle: { color: '#ffd700' },
       },
       {
         name: i18n.t('predictedPrice'), type: 'line', data: predictedPrices,
-        smooth: true, symbol: 'circle', symbolSize: 4,
+        smooth: true, showSymbol: false,
         lineStyle: { color: '#00ff88', width: 2, type: 'dashed' }, itemStyle: { color: '#00ff88' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -443,7 +443,7 @@ function buildMarketOption(): echarts.EChartsOption {
       },
       {
         name: i18n.t('predictedDemand'), type: 'line', yAxisIndex: 1, data: predictedDemands,
-        smooth: true, symbol: 'circle', symbolSize: 4,
+        smooth: true, showSymbol: false,
         lineStyle: { color: '#ffd700', width: 2, type: 'dashed' }, itemStyle: { color: '#ffd700' },
       },
     ],
