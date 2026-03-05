@@ -228,38 +228,58 @@ export function getOperatorChartData(): OperatorChartData {
 
   }
 
-  // Power & Profit: 每小时1个点 (和v2一致)
+  // Power & Profit: 价格驱动智能充放电 (2.5MW/5MWh电站)
+  // 策略: 计算全天均价，低于均价充电，高于均价放电
+  // 偏离均价越远，功率越大
+  const batteryPower = 2.5 // MW
+  const batteryCapacity = 5 // MWh
+
+  // 计算每小时均价
+  const hourlyPrices: number[] = []
+  for (let h = 0; h < 24; h++) {
+    const slice = aemoRealPriceData.slice(h * 12, (h + 1) * 12)
+    hourlyPrices.push(slice.reduce((a: number, b: number) => a + b, 0) / slice.length)
+  }
+  const dayAvg = hourlyPrices.reduce((a, b) => a + b, 0) / 24
+  const priceRange = Math.max(...hourlyPrices) - Math.min(...hourlyPrices)
+
+  let currentSOC = 0.35 // 初始35%
+
   for (let h = 0; h < 24; h++) {
     const time = String(h).padStart(2, '0') + ':00'
-    const price = aemoRealPriceData[h * 12] || 50  // 该小时的AEMO价格
+    const price = hourlyPrices[h]
+    const deviation = (price - dayAvg) / priceRange // -0.5 ~ +0.5 归一化
 
     let chgMWh = 0
     let dchMWh = 0
 
-    // 充电时段: 01:00-05:00 (低价), 10:00-14:00 (太阳能过剩)
-    if (h >= 1 && h < 5) {
-      chgMWh = 0.8 + (h * 0.1)
-    } else if (h >= 10 && h < 14) {
-      chgMWh = 0.5 + ((h - 10) * 0.15)
+    if (deviation < -0.05) {
+      // 低于均价15%以上 → 充电, 偏离越大充越猛
+      const intensity = Math.min(0.6, Math.abs(deviation) * 1.5)
+      const maxCharge = (0.9 - currentSOC) * batteryCapacity
+      chgMWh = Math.min(batteryPower * intensity, maxCharge)
+      chgMWh = parseFloat(Math.max(0, chgMWh).toFixed(2))
+      currentSOC += chgMWh / batteryCapacity
+    } else if (deviation > 0.08) {
+      // 高于均价15%以上 → 放电, 偏离越大放越猛
+      const intensity = Math.min(0.7, deviation * 1.5)
+      const maxDischarge = (currentSOC - 0.1) * batteryCapacity
+      dchMWh = Math.min(batteryPower * intensity, maxDischarge)
+      dchMWh = parseFloat(Math.max(0, dchMWh).toFixed(2))
+      currentSOC -= dchMWh / batteryCapacity
     }
 
-    // 放电时段: 07:00-09:00 (早高峰), 16:00-21:00 (傍晚高峰)
-    if (h >= 7 && h < 9) {
-      dchMWh = 0.4 + ((h - 7) * 0.15)
-    } else if (h >= 16 && h < 21) {
-      dchMWh = 0.5 + ((h - 16) * 0.08)
-    }
-
-    const actualCost = chgMWh > 0 ? chgMWh * Math.abs(price) : 0
-    const actualRev = dchMWh > 0 ? dchMWh * Math.abs(price) : 0
+    const chargeCost = chgMWh * price
+    const dischargeRevenue = dchMWh * price
+    const netProfit = dischargeRevenue - chargeCost
 
     powerProfit.push({
       time,
       chargeEnergy: parseFloat((-chgMWh).toFixed(2)),
       dischargeEnergy: parseFloat(dchMWh.toFixed(2)),
-      chargeCost: parseFloat((-Math.abs(actualCost)).toFixed(2)),
-      dischargeRevenue: parseFloat(actualRev.toFixed(2)),
-      netProfit: parseFloat((actualRev - Math.abs(actualCost)).toFixed(2)),
+      chargeCost: parseFloat((-Math.abs(chargeCost)).toFixed(2)),
+      dischargeRevenue: parseFloat(dischargeRevenue.toFixed(2)),
+      netProfit: parseFloat(netProfit.toFixed(2)),
     })
   }
 
