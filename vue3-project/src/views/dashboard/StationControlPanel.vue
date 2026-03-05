@@ -414,6 +414,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useI18nStore } from '@/stores/i18nStore'
 import { allStations } from '@/mock/dashboard'
+import { aemoRealPriceData } from '@/mock/aemo-data'
 
 const i18n = useI18nStore()
 
@@ -428,10 +429,19 @@ const regionSpotPrices: Record<string, number> = {
   ACT: 82.60,
 }
 
+// === 动态电价（AEMO实时数据，与右侧Market面板同源） ===
+const liveSpotPrice = computed(() => {
+  const now = new Date()
+  const aestHour = (now.getUTCHours() + 10) % 24
+  const aestMin = now.getUTCMinutes()
+  const idx = aestHour * 12 + Math.floor(aestMin / 5)
+  return aemoRealPriceData[Math.min(idx, aemoRealPriceData.length - 1)] ?? 65
+})
+
 // === 构建带 currentSpotPrice 的电站数据 ===
 const stations = allStations.map(s => ({
   ...s,
-  currentSpotPrice: regionSpotPrices[s.region] ?? 80,
+  currentSpotPrice: liveSpotPrice.value,
 }))
 
 // === 响应式状态 ===
