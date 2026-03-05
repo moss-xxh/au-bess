@@ -161,7 +161,7 @@ function renderGauge() {
         offsetCenter: [0, '-5%'],
         formatter: '{value}',
       },
-      data: [{ value: Math.round(score), name: 'Health Score' }],
+      data: [{ value: Math.round(score), name: i18n.t('sdHealthScore') }],
     }],
   })
 }

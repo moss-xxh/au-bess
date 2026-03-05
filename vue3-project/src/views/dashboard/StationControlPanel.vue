@@ -82,7 +82,7 @@
 
     <!-- Cost成本 (v2风格) -->
     <div class="cost-section">
-      <span class="cost-label">Cost($/MWh)</span>
+      <span class="cost-label">{{ i18n.t("costLabel") }}</span>
       <span class="cost-value">${{ currentStation.currentSpotPrice ? (currentStation.currentSpotPrice * 0.85).toFixed(2) : '--' }}</span>
     </div>
 

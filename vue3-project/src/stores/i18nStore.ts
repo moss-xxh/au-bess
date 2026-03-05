@@ -224,6 +224,7 @@ const messages: Record<string, Record<Locale, string>> = {
   allStations: { en: 'All Stations', zh: '全部电站' },
   allAlarmLevel: { en: 'All Alarm Level', zh: '全部告警级别' },
   totalItems: { en: 'Total {n} items', zh: '共 {n} 条' },
+  page: { en: 'Page', zh: '第' },
   // Map page (Phase 7)
   navMap: { en: 'Map', zh: '地图' },
   stationMap: { en: 'Station Map', zh: '电站地图' },
@@ -231,6 +232,8 @@ const messages: Record<string, Record<Locale, string>> = {
   // Station Detail (Phase 7)
   stationDetail: { en: 'Station Detail', zh: '电站详情' },
   sdBackToStations: { en: '← Station Management', zh: '← 电站管理' },
+  costLabel: { en: 'Cost($/MWh)', zh: '成本($/MWh)' },
+  sdHealthScore: { en: 'Health Score', zh: '健康分数' },
   sdOverview: { en: 'Overview', zh: '概览' },
   sdRunningData: { en: 'Running Data', zh: '运行数据' },
   sdHistoricalData: { en: 'Historical Data', zh: '历史数据' },

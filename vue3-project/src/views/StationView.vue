@@ -86,9 +86,7 @@
         <!-- Footer: 位置 + Detail -->
         <div class="card-footer">
           <span class="location">📍 {{ station.region }}, Australia</span>
-          <button class="btn-detail" @click="goDetail(station.id)">
-            Detail
-          </button>
+          <button class="btn-detail" @click="goDetail(station.id)">{{ i18n.t("detail") }}</button>
         </div>
       </div>
     </div>
@@ -159,9 +157,7 @@
               ${{ station.totalProfit.toLocaleString() }}
             </td>
             <td>
-              <button class="btn-detail-sm" @click="goDetail(station.id)">
-                Detail
-              </button>
+              <button class="btn-detail-sm" @click="goDetail(station.id)">{{ i18n.t("detail") }}</button>
             </td>
           </tr>
         </tbody>
@@ -171,7 +167,7 @@
     <!-- Pagination -->
     <div class="pagination">
       <span class="page-info">
-        Total {{ filteredStations.length }} items, Page {{ currentPage }}/{{ totalPages }}
+        {{ i18n.t("totalItems").replace("{n}", String(filteredStations.length)) }}, {{ i18n.t("page") }} {{ currentPage }}/{{ totalPages }}
       </span>
       <div class="page-buttons">
         <button :disabled="currentPage <= 1" @click="currentPage = 1">«</button>
