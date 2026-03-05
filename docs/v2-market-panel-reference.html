@@ -1,0 +1,111 @@
+                <div class="right-panel-scroll" style="overflow: visible; padding-right:10px; height: 100%;">
+                    <!-- 自定义卡片 -->
+                    <div class="custom-card" style="height: 100% !important; min-height: 540px; margin-bottom: 0; box-sizing: border-box;">
+                        <div style="padding: 16px; position: relative; display: flex; flex-direction: column; min-height: 510px; overflow: visible; box-sizing: border-box;">
+                            <!-- 行情 / 分析 下划线 Tab -->
+                            <div style="display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin: 0 0 16px 0;">
+                                <button id="aemoTabMarket" onclick="switchAemoTab('market')" style="background:none;border:none;outline:none;cursor:pointer;padding:8px 24px;font-size:14px;font-weight:500;color:#00ff88;border-bottom:2px solid #00ff88;margin-bottom:-1px;transition:all 0.25s;" data-i18n="aemoTabMarket">行情</button>
+                                <button id="aemoTabAnalysis" onclick="switchAemoTab('analysis')" style="background:none;border:none;outline:none;cursor:pointer;padding:8px 24px;font-size:14px;font-weight:500;color:rgba(255,255,255,0.45);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.25s;" data-i18n="aemoTabAnalysis">自动预览</button>
+                            </div>
+
+                            <!-- Market Panel -->
+                            <div id="marketPanel" class="panel-content active" style="padding-left: 20px; padding-right: 20px;">
+                                <!-- Price Cards -->
+                                <div class="market-section">
+                                    <div class="price-cards" style="display: flex; gap: 20px;">
+                                        <!-- Combined card for first 4 items -->
+                                        <div class="price-card" style="flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; min-height: 120px;">
+                                            <div style="display: flex; height: 100%;">
+                                                <div style="flex: 1; padding: 20px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;" onclick="updateMainChart('price')">
+                                                    <div class="price-card-label" data-i18n="currentSpotPrice" style="font-size: 13px; font-weight: 500;">CURRENT SPOT PRICE</div>
+                                                    <div class="price-card-label" style="font-size: 11px;">($/MWh)</div>
+                                                    <div class="price-card-value" id="spotPrice" style="font-size: 28px; font-weight: 700; margin-top: 8px;">$162.73</div>
+                                                </div>
+                                                <div style="width: 1px; background: rgba(255, 255, 255, 0.1); margin: 16px 0;"></div>
+                                                <div style="flex: 1; padding: 20px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;" onclick="updateMainChart('demand')">
+                                                    <div class="price-card-label" data-i18n="currentDemand" style="font-size: 13px; font-weight: 500;">CURRENT DEMAND</div>
+                                                    <div class="price-card-label" style="font-size: 11px;">(MW)</div>
+                                                    <div class="price-card-value" id="currentDemand" style="font-size: 28px; font-weight: 700; margin-top: 8px;">8,344</div>
+                                                </div>
+                                                <div style="width: 1px; background: rgba(255, 255, 255, 0.1); margin: 16px 0;"></div>
+                                                <div style="flex: 1; padding: 20px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;" onclick="updateMainChart('forecast')">
+                                                    <div class="price-card-label" data-i18n="forecastPrice" style="font-size: 13px; font-weight: 500;">FORECAST PRICE</div>
+                                                    <div class="price-card-label" style="font-size: 11px;">($/MWh - NEXT 30MIN)</div>
+                                                    <div class="price-card-value" id="forecastPrice" style="font-size: 28px; font-weight: 700; margin-top: 8px;">$162.73</div>
+                                                </div>
+                                                <div style="width: 1px; background: rgba(255, 255, 255, 0.1); margin: 16px 0;"></div>
+                                                <div style="flex: 1; padding: 20px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;" onclick="updateMainChart('forecastDemand')">
+                                                    <div class="price-card-label" data-i18n="forecastDemand" style="font-size: 13px; font-weight: 500;">FORECAST DEMAND</div>
+                                                    <div class="price-card-label" style="font-size: 11px;">(MW - NEXT 30MIN)</div>
+                                                    <div class="price-card-value" id="forecastDemand" style="font-size: 28px; font-weight: 700; margin-top: 8px;">8,202</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Demand vs Generation card -->
+                                        <div class="price-card demand-gen-card" style="flex: 0 0 20%; padding: 16px 12px; display: flex; flex-direction: column; min-height: 120px;">
+                                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                                <!-- Demand Row -->
+                                                <div style="margin-bottom: 16px;">
+                                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                                        <span style="font-size: 12px; color: rgba(255, 255, 255, 0.7);" data-i18n="demand">需求</span>
+                                                        <span style="font-size: 15px; font-weight: 700; color: #fff;">9,692 <span style="font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.7);">kWh</span></span>
+                                                    </div>
+                                                    <div style="height: 16px; background: transparent; border-radius: 6px; overflow: hidden;">
+                                                        <div style="width: 100%; height: 100%; background: rgba(0, 255, 136, 0.5); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                                            <span style="font-size: 12px;">👤</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Generation Row -->
+                                                <div>
+                                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                                        <span style="font-size: 12px; color: rgba(255, 255, 255, 0.7);" data-i18n="generation">发电</span>
+                                                        <span style="font-size: 15px; font-weight: 700; color: #fff;">8,319 <span style="font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.7);">kWh</span></span>
+                                                    </div>
+                                                    <div style="height: 16px; background: transparent; border-radius: 6px; overflow: hidden; position: relative;">
+                                                        <!-- 闪电发电部分 60% -->
+                                                        <div style="width: 60%; height: 100%; background: rgba(0, 170, 255, 0.5); position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center;">
+                                                            <span style="font-size: 12px;">⚡</span>
+                                                        </div>
+                                                        <!-- 风力发电部分 20% -->
+                                                        <div style="width: 20%; height: 100%; background: rgba(64, 224, 208, 0.5); position: absolute; left: 60%; top: 0; display: flex; align-items: center; justify-content: center;">
+                                                            <span style="font-size: 12px;">💨</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Market Chart -->
+                                <div id="marketChart" style="height: 370px; width: 100%; margin-top: 40px;"></div>
+
+                            </div>
+
+                            <!-- Auto Preview Panel -->
+                            <div id="analysisPanel" style="display: none; padding: 0 20px; flex-direction: column; flex: 1;">
+                                <!-- 预计数据统计 -->
+                                <div style="display:flex; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; margin-bottom:12px; overflow:hidden;">
+                                    <div style="flex:1; padding:14px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                        <div id="aiStatChargeLabel" data-zh="预计充电成本" data-en="Est. Charge Cost" style="font-size:12px; font-weight:500; color:rgba(255,255,255,0.6);">预计充电成本</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">($)</div>
+                                        <div id="aiStatChargeCost" style="font-size:22px; font-weight:700; color:#ff6b6b; margin-top:6px;">$--</div>
+                                    </div>
+                                    <div style="width:1px; background:rgba(255,255,255,0.08); margin:12px 0;"></div>
+                                    <div style="flex:1; padding:14px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                        <div id="aiStatRevenueLabel" data-zh="预计卖电收益" data-en="Est. Sell Revenue" style="font-size:12px; font-weight:500; color:rgba(255,255,255,0.6);">预计卖电收益</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">($)</div>
+                                        <div id="aiStatRevenue" style="font-size:22px; font-weight:700; color:#ffc107; margin-top:6px;">$--</div>
+                                    </div>
+                                    <div style="width:1px; background:rgba(255,255,255,0.08); margin:12px 0;"></div>
+                                    <div style="flex:1; padding:14px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                        <div id="aiStatProfitLabel" data-zh="预计净利润" data-en="Est. Net Profit" style="font-size:12px; font-weight:500; color:rgba(255,255,255,0.6);">预计净利润</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">($)</div>
+                                        <div id="aiStatProfit" style="font-size:22px; font-weight:700; color:#00ff88; margin-top:6px;">$--</div>
+                                    </div>
+                                </div>
+                                <!-- 迷你价格走势图 -->
+                                <div id="aiMiniChart" style="height: 320px; margin-bottom: 10px;"></div>
+                            </div>
+

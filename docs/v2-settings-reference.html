@@ -1,0 +1,61 @@
+                    </button>
+                </div>
+
+                <!-- Battery SOC indicator -->
+                <div style="display:flex; align-items:center; gap:8px; padding:8px 4px 12px; flex-shrink:0;">
+                    <span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:1px;">SOC</span>
+                    <div style="display:flex; align-items:center;">
+                        <!-- Battery body -->
+                        <div style="position:relative; width:96px; height:32px; border:2px solid rgba(255,255,255,0.35); border-radius:5px; overflow:hidden; background:rgba(255,255,255,0.05);">
+                            <!-- Fill bar -->
+                            <div id="batteryFill" style="position:absolute;left:0;top:0;height:100%;width:75%;background:linear-gradient(90deg,#00cc6a,#00ff88);border-radius:3px 0 0 3px;transition:width 0.6s ease,background 0.4s;"></div>
+                            <!-- Tick marks at 25% 50% 75% -->
+                            <div style="position:absolute;left:25%;top:4px;bottom:4px;width:1px;background:rgba(255,255,255,0.22);z-index:1;"></div>
+                            <div style="position:absolute;left:50%;top:4px;bottom:4px;width:1px;background:rgba(255,255,255,0.22);z-index:1;"></div>
+                            <div style="position:absolute;left:75%;top:4px;bottom:4px;width:1px;background:rgba(255,255,255,0.22);z-index:1;"></div>
+                            <!-- SOC value -->
+                            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;">
+                                <span id="circleSOCValue" style="font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.8);letter-spacing:0.5px;">--%</span>
+                            </div>
+                        </div>
+                        <!-- Positive terminal nub -->
+                        <div style="width:4px;height:14px;background:rgba(255,255,255,0.35);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
+                    </div>
+                </div>
+                <!-- Settings Summary -->
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px; flex-shrink: 0;">
+                    <!-- Settings Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 15px; font-weight: 600; color: #fff;" data-text-zh="设置" data-text-en="Settings">设置</span>
+                        <button onclick="openConditionSettingsModal()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 5px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.18)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" data-text-zh="编辑" data-text-en="Edit">编辑</button>
+                    </div>
+                    <!-- SOC Row -->
+                    <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 13px; color: rgba(255,255,255,0.75); flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span>⚡</span>
+                            <span data-text-zh="充电停止SOC" data-text-en="Charge Stop SOC">充电停止SOC</span>
+                            <span id="chargeStopSOCDisplay" style="color: #00ff88; font-weight: 700; font-size: 16px;">75%</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span>🔋</span>
+                            <span data-text-zh="放电停止SOC" data-text-en="Discharge Stop SOC">放电停止SOC</span>
+                            <span id="dischargeStopSOCDisplay" style="color: #ffc107; font-weight: 700; font-size: 16px;">30%</span>
+                        </div>
+                    </div>
+                    <!-- Conditions Grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="border: 1px solid rgba(0,255,136,0.35); border-left: 3px solid #00ff88; border-radius: 8px; padding: 10px; background: rgba(0,255,136,0.04);">
+                            <div style="font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 6px;" data-text-zh="自动充电条件" data-text-en="Auto Charge">自动充电条件</div>
+                            <div id="chargeConditionsList" style="display: flex; flex-direction: column; gap: 3px;"></div>
+                        </div>
+                        <div style="border: 1px solid rgba(255,193,7,0.35); border-left: 3px solid #ffc107; border-radius: 8px; padding: 10px; background: rgba(255,193,7,0.04);">
+                            <div style="font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 6px;" data-text-zh="自动放电条件" data-text-en="Auto Discharge">自动放电条件</div>
+                            <div id="dischargeConditionsList" style="display: flex; flex-direction: column; gap: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧卡片区 -->
+            <div style="display: flex; flex-direction: column; width: 100%; height: 100%; overflow: visible;">
+                <div class="right-panel-scroll" style="overflow: visible; padding-right:10px; height: 100%;">

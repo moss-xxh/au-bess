@@ -1,40 +1,34 @@
-# TOOLS.md - Local Notes
+# TOOLS.md - 工具配置
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+## 截图验证
 
-## What Goes Here
-
-Things like:
-
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
-
-## Examples
-
-```markdown
-### Cameras
-
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
-
-### SSH
-
-- home-server → 192.168.1.100, user: admin
-
-### TTS
-
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
+```bash
+~/.cache/ms-playwright/chromium-1208/chrome-linux64/chrome \
+  --headless --no-sandbox --disable-gpu \
+  --screenshot=/tmp/test.png --window-size=1920,1080 \
+  "http://49.51.194.118:8080/v2/station.html"
 ```
 
-## Why Separate?
+注意：需要注入localStorage登录状态才能正确渲染（通过--evaluate-script或Playwright）
 
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+## 部署命令
 
----
+```bash
+# 压缩
+cd /var/www/bess-v2 && gzip -k -f -9 <modified-file>
 
-Add whatever helps you do your job. This is your cheat sheet.
+# 权限
+chown -R nginx:nginx /var/www/bess-v2/
+
+# 版本备份
+VERSION="v1.x-$(date +%Y%m%d-%H%M)"
+mkdir -p /root/backups/v2-releases/$VERSION
+cp -r /var/www/bess-v2/* /root/backups/v2-releases/$VERSION/
+```
+
+## Git推送
+
+```bash
+cd /var/www/bess-v2
+git add -A && git commit -m "描述" && git push origin main
+```

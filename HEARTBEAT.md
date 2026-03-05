@@ -1,5 +1,16 @@
-# HEARTBEAT.md
+# HEARTBEAT.md - aus-energy
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+## 每次唤醒必做
 
-# Add tasks below when you want the agent to check something periodically.
+1. 检查是否有正在执行的sub-agent任务（sessions_list / subagents list）
+2. 如果有：向群里汇报当前进度 — 在做什么、完成百分比、预计还需多久
+3. 如果没有活跃任务：HEARTBEAT_OK
+
+## 汇报格式
+
+"🔄 进度汇报：[任务名] — [当前步骤] — [预计还需X分钟]"
+
+## 注意
+
+- 有任务在跑就必须汇报，不允许静默
+- 任务完成了也要汇报："✅ [任务名] 已完成"
