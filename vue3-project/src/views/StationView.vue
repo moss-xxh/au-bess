@@ -185,10 +185,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18nStore } from '@/stores/i18nStore'
 import { useAuthStore } from '@/stores/authStore'
 import { getAllStations, type Station } from '@/mock/dashboard'
 
+const router = useRouter()
 const i18n = useI18nStore()
 const authStore = useAuthStore()
 
@@ -289,7 +291,7 @@ function toggleSort(key: string) {
 }
 
 function goDetail(id: string) {
-  console.log('Navigate to station detail:', id)
+  router.push(`/station/${id}`)
 }
 </script>
 

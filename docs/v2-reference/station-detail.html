@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css/styles-bundle.css">
+    <script src="page-transition.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Station Detail - AlwaysControl</title>
+
+    <!-- Leaflet.js 地图库 (async — 不阻塞页面加载) -->
+    <link rel="stylesheet" href="vendor/leaflet.css" />
+    <script src="vendor/leaflet.js"></script>
+
+    <!-- Standard Stylesheets -->
+
+    <!-- Standard Scripts -->
+    <script src="js/components-bundle.js"></script>
+    <script src="components/mini-date-picker.js"></script>
+    <script src="vendor/echarts.min.js"></script>
+
+    <style>
+        /* ── Base ─────────────────────────────────────────────────── */
+        body {
+            background: #000 !important;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(0,255,136,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0,122,255,0.03) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 30px 40px;
+            min-height: calc(100vh - 140px);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Loading Overlay ────────────────────────────────────────── */
+        #loadingOverlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 48px; height: 48px;
+            border: 3px solid rgba(0,255,136,0.15);
+            border-top-color: #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Page Header ────────────────────────────────────────────── */
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid transparent;
+            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.1), transparent) bottom / 100% 2px no-repeat;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Back Button — matching operation-log-detail.html */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--color-text, #fff);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        .back-button:hover::before { left: 100%; }
+        .back-button:hover {
+            background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.05));
+            transform: translateX(-5px);
+            border-color: var(--color-primary, #00ff88);
+        }
+        .back-icon {
+            font-size: 18px;
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        .back-button:hover .back-icon { transform: translateX(-5px); }
+
+        /* Gradient title — matching operation-log-detail.html */
+        .detail-title-section { flex: 1; min-width: 0; }
+        .detail-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 4px;
+            background: linear-gradient(135deg, #fff 0%, rgba(0,255,136,0.9) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .detail-subtitle {
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+            margin: 0;
+        }
+
+        /* ── Tab Bar ─────────────────────────────────────────────────── */
+        .detail-tab-bar {
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.03);
+            padding: 6px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 24px;
+        }
+        .detail-tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .detail-tab-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
+        }
+        .detail-tab-btn.active {
+            background: var(--color-primary, #00ff88);
+            color: #000;
+        }
+        .detail-tab-content { display: none; }
+        .detail-tab-content.active { display: block; }
+
+        /* ── Detail Sections ─────────────────────────────────────────── */
+        .detail-section {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .detail-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* ── Equipment Tab ───────────────────────────────────────────── */
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .equipment-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .equipment-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .equipment-name { font-size: 15px; font-weight: 600; color: #fff; }
+        .equipment-stats { display: flex; flex-direction: column; gap: 10px; }
+        .equipment-stat-row { display: flex; justify-content: space-between; align-items: center; }
+        .equipment-stat-label { font-size: 13px; color: rgba(255,255,255,0.5); }
+        .equipment-stat-value { font-size: 14px; font-weight: 500; color: #fff; }
+
+        /* ── Dispatch Tab ─────────────────────────────────────────────── */
+        .dispatch-table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* ── Data Table ─────────────────────────────────────────────────*/
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .data-table td {
+            padding: 12px 16px;
+            color: rgba(255,255,255,0.85);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.online      { background: rgba(0,255,136,0.1);   color: #00ff88; border: 1px solid rgba(0,255,136,0.2); }
+        .status-badge.offline     { background: rgba(255,59,48,0.1);   color: #ff3b30; border: 1px solid rgba(255,59,48,0.2); }
+        .status-badge.charging    { background: rgba(59,130,246,0.1);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+        .status-badge.discharging { background: rgba(245,158,11,0.1);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+        .status-badge.idle        { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        .mode-icon { font-size: 11px; }
+
+        /* Table action button */
+        .table-action-btn {
+            padding: 6px 14px;
+            background: rgba(0,255,136,0.08);
+            border: 1px solid rgba(0,255,136,0.2);
+            border-radius: 8px;
+            color: #00ff88;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .table-action-btn:hover { background: rgba(0,255,136,0.15); }
+
+        /* ── Profit Tab ──────────────────────────────────────────────── */
+        .profit-summary-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .profit-summary-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .profit-summary-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .profit-summary-value { font-size: 28px; font-weight: 700; color: #fff; }
+        .profit-summary-value.positive { color: #00ff88; }
+        .profit-summary-value.negative { color: #ff6b6b; }
+        .profit-chart-section {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .profit-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .profit-period-toggle {
+            display: flex;
+            gap: 4px;
+            background: rgba(255,255,255,0.05);
+            padding: 4px;
+            border-radius: 10px;
+        }
+        .profit-period-btn {
+            padding: 6px 14px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .profit-period-btn.active { background: var(--color-primary, #00ff88); color: #000; }
+        .profit-chart-container {
+            width: 100%;
+            height: 320px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* ── Profit Report Tab (reports.html style) ─────────────────── */
+        .profit-stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; margin-bottom: 20px; }
+        .profit-stat-card { padding: 18px; text-align: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: transform 0.2s ease; }
+        .profit-stat-card:hover { transform: translateY(-3px); }
+        .profit-stat-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 10px; font-weight: 500; }
+        .profit-stat-val { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+        .profit-stat-val .unit { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.4); margin-left: 2px; }
+        .profit-stat-change { font-size: 12px; color: #00ff88; margin-top: 8px; }
+        .profit-stat-change.negative { color: #ff6b6b; }
+        .profit-view-tabs { display: inline-flex; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 4px; gap: 4px; margin-bottom: 20px; }
+        .profit-view-tab { padding: 8px 20px; background: transparent; border: none; border-radius: 8px; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .profit-view-tab.active { background: #00ff88; color: #000; font-weight: 600; }
+        .profit-report-table { width: 100%; border-collapse: collapse; }
+        .profit-report-table th { padding: 10px 14px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); white-space: nowrap; letter-spacing: 0.5px; text-transform: uppercase; }
+        .profit-report-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: rgba(255,255,255,0.85); white-space: nowrap; }
+        .profit-report-table tr:hover td { background: rgba(255,255,255,0.02); }
+        @media (max-width: 1100px) { .profit-stats-grid { grid-template-columns: repeat(3,1fr); } }
+        @media (max-width: 700px)  { .profit-stats-grid { grid-template-columns: repeat(2,1fr); } }
+
+        /* ── History Tab ─────────────────────────────────────────────── */
+        .time-pill {
+            padding: 5px 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            background: transparent;
+            color: rgba(255,255,255,0.55);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-pill:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .time-pill.active {
+            background: var(--color-primary, #00ff88);
+            color: #000;
+            border-color: var(--color-primary, #00ff88);
+            font-weight: 600;
+        }
+
+        /* MiniDatePicker */
+        .dp-wrapper { position: relative; display: inline-block; }
+        .dp-popup {
+            display: none; position: fixed; z-index: 99999;
+            background: #1a1f2e; border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; padding: 12px; width: 240px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .dp-popup.open { display: block; }
+        .dp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .dp-nav { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 14px; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: background 0.2s; }
+        .dp-nav:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .dp-month-label { font-size: 14px; font-weight: 600; color: #fff; }
+        .dp-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
+        .dp-weekdays div { text-align: center; font-size: 11px; color: rgba(255,255,255,0.4); padding: 4px 0; }
+        .dp-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+        .dp-day { text-align: center; padding: 5px 2px; font-size: 12px; color: rgba(255,255,255,0.85); cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+        .dp-day:hover { background: rgba(255,255,255,0.1); }
+        .dp-day.other-month { color: rgba(255,255,255,0.25); cursor: default; }
+        .dp-day.other-month:hover { background: none; }
+        .dp-day.today { color: #00ff88; font-weight: 700; }
+        .dp-day.selected { background: rgba(0,255,136,0.25); color: #00ff88; font-weight: 700; }
+        .dp-footer { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .dp-btn-clear, .dp-btn-today { background: none; border: none; font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: background 0.2s; }
+        .dp-btn-clear { color: rgba(255,255,255,0.45); }
+        .dp-btn-clear:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .dp-btn-today { color: #00ff88; }
+        .dp-btn-today:hover { background: rgba(0,255,136,0.12); }
+        .hist-date-input {
+            width: 120px; padding: 5px 10px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px; color: #fff; font-size: 12px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hist-date-input:focus { outline: none; border-color: rgba(0,255,136,0.5); }
+
+        /* ── Owner Overview Tab ──────────────────────────────────────── */
+        .owner-top-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+        .owner-hero {
+            display: flex;
+            flex-direction: column;
+            padding: 24px 20px;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+        }
+        .owner-hero-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            align-items: stretch;
+            height: 100%;
+        }
+        .owner-hero-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding-right: 20px;
+            border-right: 1px solid rgba(255,255,255,0.07);
+        }
+        .owner-hero-status { font-size: 12px; font-weight: 600; text-align: center; letter-spacing: 0.2px; }
+        .owner-hero.health-good .owner-hero-status  { color: #00ff88; }
+        .owner-hero.health-normal .owner-hero-status { color: #ffd93d; }
+        .owner-hero.health-error .owner-hero-status  { color: #ff6b6b; }
+        .owner-hero-right { display: flex; flex-direction: column; padding-left: 20px; }
+        .owner-hero-metric { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+        .owner-hero-row-divider { height: 1px; background: rgba(255,255,255,0.07); flex-shrink: 0; }
+        .owner-hero-metric-label { font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 0.3px; text-transform: uppercase; }
+        .owner-hero-metric-value { font-size: 28px; font-weight: 700; line-height: 1; }
+
+        .owner-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .owner-info-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px 20px;
+        }
+        .owner-info-card-icon { font-size: 28px; margin-bottom: 12px; line-height: 1; }
+        .owner-info-card-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+        .owner-info-card-value { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 6px; }
+        .owner-info-card-sub { font-size: 12px; color: rgba(255,255,255,0.38); }
+        .owner-soc-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; margin: 8px 0 4px; overflow: hidden; }
+        .owner-soc-fill { height: 100%; border-radius: 3px; }
+        .owner-status-row { display: flex; align-items: center; gap: 8px; margin: 10px 0 16px; }
+        .owner-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot-ok    { background: #00ff88; box-shadow: 0 0 5px rgba(0,255,136,0.8); }
+        .dot-error { background: #ff3b30; box-shadow: 0 0 5px rgba(255,59,48,0.8); }
+        .owner-run-badge { display: inline-block; padding: 6px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; align-self: flex-start; }
+        .owner-run-charging    { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .owner-run-discharging { background: rgba(0,255,136,0.1);   color: #00ff88; border: 1px solid rgba(0,255,136,0.3); }
+        .owner-run-idle        { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
+
+        .owner-devices-section {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+        }
+        .owner-devices-title { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 16px; }
+        .owner-devices-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .owner-device-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.025);
+        }
+        .owner-device-card.device-error { border-color: rgba(255,59,48,0.25); background: rgba(255,59,48,0.04); }
+        .owner-device-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+        .owner-device-name { flex: 1; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.75); }
+        .owner-device-status-wrap { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .owner-device-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .owner-device-dot.dot-ok    { background: #00ff88; box-shadow: 0 0 4px rgba(0,255,136,0.8); }
+        .owner-device-dot.dot-error { background: #ff3b30; box-shadow: 0 0 4px rgba(255,59,48,0.8); }
+        .owner-device-status { font-size: 11px; font-weight: 600; }
+        .owner-device-card.device-ok    .owner-device-status { color: #00ff88; }
+        .owner-device-card.device-error .owner-device-status { color: #ff3b30; }
+
+        .owner-station-map {
+            width: 100%; min-height: 280px; height: 100%;
+            border-radius: 16px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* ── Station Modal (schedule detail popup) ─────────────────────── */
+        .station-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+        }
+        .station-modal-content {
+            background: #0d0d1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .modal-close {
+            width: 32px; height: 32px;
+            background: rgba(255,255,255,0.08);
+            border: none; border-radius: 50%;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer; font-size: 16px;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .schedule-detail-modal .dispatch-table-wrapper { max-height: 340px; overflow-y: auto; }
+
+        /* ── Responsive ──────────────────────────────────────────────── */
+        @media (max-width: 1100px) {
+            .owner-cards-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 900px) {
+            .owner-top-row { grid-template-columns: 1fr; }
+            .owner-cards-grid { grid-template-columns: repeat(2, 1fr); }
+            .owner-devices-grid { grid-template-columns: repeat(3, 1fr); }
+            .equipment-grid { grid-template-columns: 1fr; }
+            .profit-summary-row { grid-template-columns: repeat(2, 1fr); }
+            .detail-tab-bar { flex-wrap: wrap; }
+            .detail-tab-btn { padding: 8px 14px; font-size: 13px; }
+        }
+        @media (max-width: 600px) {
+            .container { padding: 90px 16px 32px; }
+            .detail-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .detail-title { font-size: 22px; }
+            .owner-devices-grid { grid-template-columns: repeat(2, 1fr); }
+            .owner-cards-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header Container -->
+    <div id="headerContainer"></div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer">
+
+        <!-- Page Header -->
+        <div class="detail-header">
+            <button class="back-button" onclick="backToList()">
+                <span class="back-icon">←</span>
+                <span data-i18n="station.detail_breadcrumb">电站列表</span>
+            </button>
+            <div class="detail-title-section">
+                <h1 class="detail-title" id="stationTitle">Loading...</h1>
+                <p class="detail-subtitle" id="stationSubtitle"></p>
+            </div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="detail-tab-bar">
+            <button class="detail-tab-btn active" data-detail-tab="overview" onclick="switchDetailTab('overview')">
+                <span data-i18n="station.tab_overview">概览</span>
+            </button>
+            <button class="detail-tab-btn" data-detail-tab="equipment" onclick="switchDetailTab('equipment')">
+                <span data-i18n="station.tab_equipment">运行数据</span>
+            </button>
+            <button class="detail-tab-btn" data-detail-tab="history" onclick="switchDetailTab('history')">
+                <span data-i18n="station.tab_history">历史数据</span>
+            </button>
+            <button class="detail-tab-btn" data-detail-tab="dispatch" onclick="switchDetailTab('dispatch')">
+                <span data-i18n="station.tab_dispatch">调度记录</span>
+            </button>
+            <button class="detail-tab-btn" data-detail-tab="profit" onclick="switchDetailTab('profit')" style="display:none">
+                <span data-i18n="station.tab_profit">获利分析</span>
+            </button>
+        </div>
+
+        <!-- Tab 1: Overview -->
+        <div class="detail-tab-content active" id="detailTabOverview">
+        </div>
+
+        <!-- Tab 2: Equipment / Running Data -->
+        <div class="detail-tab-content" id="detailTabEquipment">
+        </div>
+
+        <!-- Tab 3: History Charts -->
+        <div class="detail-tab-content" id="detailTabHistory">
+        </div>
+
+        <!-- Tab 4: Dispatch Records -->
+        <div class="detail-tab-content" id="detailTabDispatch">
+        </div>
+
+        <!-- Tab 5: Profit Analysis -->
+        <div class="detail-tab-content" id="detailTabProfit">
+        </div>
+
+    </div><!-- end .container -->
+
+    <!-- App Logic -->
+    <script src="js/station-detail-app.js"></script>
+
+</body>
+</html>

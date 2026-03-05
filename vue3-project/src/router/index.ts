@@ -49,6 +49,12 @@ const router = createRouter({
           meta: { title: 'navStation', roles: ['owner', 'operator'] },
         },
         {
+          path: 'station/:id',
+          name: 'station-detail',
+          component: () => import('../views/station/StationDetailView.vue'),
+          meta: { title: 'stationDetail', roles: ['owner', 'operator'] },
+        },
+        {
           path: 'fault-alarm',
           name: 'fault-alarm',
           component: () => import('../views/FaultAlarmView.vue'),
