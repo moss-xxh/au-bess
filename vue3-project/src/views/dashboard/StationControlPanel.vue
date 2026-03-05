@@ -323,7 +323,7 @@
                   <input type="time" v-model="p.start" class="time-input-field" />
                   <span class="time-dash">-</span>
                   <input type="time" v-model="p.end" class="time-input-field" />
-                  <button v-if="editChargePeriods.length > 1" class="del-period-btn" @click="editChargePeriods.splice(idx, 1)">✕</button>
+                  <button  class="del-period-btn" @click="editChargePeriods.splice(idx, 1)">✕</button>
                 </div>
               </div>
               <!-- 放电时段（多个） -->
@@ -336,7 +336,7 @@
                   <input type="time" v-model="p.start" class="time-input-field" />
                   <span class="time-dash">-</span>
                   <input type="time" v-model="p.end" class="time-input-field" />
-                  <button v-if="editDischargePeriods.length > 1" class="del-period-btn" @click="editDischargePeriods.splice(idx, 1)">✕</button>
+                  <button  class="del-period-btn" @click="editDischargePeriods.splice(idx, 1)">✕</button>
                 </div>
               </div>
             </div>
@@ -879,9 +879,9 @@ function saveSettings() {
 }
 
 .price-circle.price-idle {
-  background: radial-gradient(circle, #2a3a4e, #1a2536);
-  box-shadow: 0 0 20px rgba(100, 140, 180, 0.15), 0 0 40px rgba(60, 100, 140, 0.08);
-  border: 1px solid rgba(100, 160, 220, 0.2);
+  background: radial-gradient(circle, #4FC3F7, #2196F3, #1565C0);
+  box-shadow: 0 6px 32px rgba(58, 184, 255, 0.35), 0 0 60px rgba(33, 150, 243, 0.15);
+  border: 1px solid rgba(79, 195, 247, 0.3);
 }
 
 .price-circle.price-charging {
@@ -1703,11 +1703,11 @@ function saveSettings() {
 
 .soc-slider {
   flex: 1;
-  height: 6px;
+  height: 8px;
   -webkit-appearance: none;
   appearance: none;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  border-radius: 9999px;
   outline: none;
 }
 
@@ -1858,6 +1858,8 @@ function saveSettings() {
 }
 .soc-slider.charge-slider::-webkit-slider-runnable-track {
   background: linear-gradient(to right, #00ff88 0%, #00ff88 var(--val, 75%), rgba(255,255,255,0.1) var(--val, 75%));
+  border-radius: 9999px;
+  height: 8px;
 }
 .soc-slider.discharge-slider {
   accent-color: #ffc107;
@@ -1868,7 +1870,10 @@ function saveSettings() {
   box-shadow: 0 2px 6px rgba(255, 193, 7, 0.4);
 }
 .soc-slider.discharge-slider::-webkit-slider-runnable-track {
-  background: linear-gradient(to right, #ffc107 0%, #ffc107 var(--val, 30%), rgba(255,255,255,0.1) var(--val, 30%));
+  background: linear-gradient(to left, #ffc107 0%, #ffc107 calc(100% - var(--val, 30%)), rgba(255,255,255,0.1) calc(100% - var(--val, 30%)));
+  border-radius: 9999px;
+  height: 8px;
+  direction: rtl;
 }
 
 .soc-slider.full-width {
